@@ -57,34 +57,32 @@ export const BUCKET_DEFINITIONS: Array<{
   {
     id: "staff_service",
     label: "Staff & service",
-    description: "People, speed, and front-line service quality.",
+    description: "Team, wait times, how people are treated.",
   },
   {
     id: "food_drinks",
-    label: "Product & food quality",
-    description:
-      "Food/drink taste and safety where relevant; also material, construction, and sensory product quality (e.g. apparel).",
+    label: "Product quality",
+    description: "Food, drinks, materials, defects—overall quality.",
   },
   {
     id: "cleanliness_ambience",
-    label: "Cleanliness & ambience",
-    description: "Hygiene, pests, noise, and atmosphere.",
+    label: "Cleanliness & vibe",
+    description: "Hygiene, pests, noise, atmosphere.",
   },
   {
     id: "stock_items_orders",
-    label: "Stock, items & order accuracy",
-    description:
-      "Wrong/missing SKUs, sizes, or picks; inventory gaps; foreign objects in orders (any vertical).",
+    label: "Orders & inventory",
+    description: "Wrong or missing items, stock-outs, mistakes.",
   },
   {
     id: "pricing_trust",
-    label: "Pricing & trust",
-    description: "Value, billing/refunds, and trust/scam language.",
+    label: "Price & trust",
+    description: "Value, charges, refunds, honesty.",
   },
   {
     id: "delivery_ops",
     label: "Delivery & packaging",
-    description: "Drivers, packaging, spills, and arrival condition.",
+    description: "Shipping, drivers, how it arrives.",
   },
 ];
 
@@ -97,7 +95,7 @@ export function formatAnalyticsBucketSuggestionSummary(
     .filter((x): x is string => Boolean(x));
   if (labels.length === 0) return "";
   const joined = labels.join(" · ");
-  return `Suggested themes: ${joined}. Uncheck any you do not need.`;
+  return `Suggested: ${joined}. Adjust checkboxes if needed.`;
 }
 
 const KNOWN_SUBJECT_IDS = new Set<SubjectBucketId>(

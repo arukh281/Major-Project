@@ -94,7 +94,7 @@ function ShareBlock({
   return (
     <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
       <div className="min-w-0 flex-1">
-        <p className="filter-label">Customer review link</p>
+        <p className="admin-field-label">Customer review link</p>
         <code className="mt-2 block break-all rounded border border-[var(--line)] bg-[var(--surface)] px-2 py-2 font-mono text-[11px] text-[var(--fg-soft)]">
           {url || "…"}
         </code>
@@ -107,7 +107,7 @@ function ShareBlock({
         </button>
       </div>
       <div className="shrink-0">
-        <p className="filter-label">QR code</p>
+        <p className="admin-field-label">QR code</p>
         {qrLoading ? (
           <div
             className="mt-2 flex h-[240px] w-[240px] items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface)] font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]"
@@ -184,6 +184,7 @@ export function BusinessesSection({
   const [createBucketIds, setCreateBucketIds] = useState(() => new Set<string>());
   const [bucketSuggestLoading, setBucketSuggestLoading] = useState(false);
   const [bucketSuggestNote, setBucketSuggestNote] = useState<string | null>(null);
+  const [createConfirmStep, setCreateConfirmStep] = useState(false);
 
   const [editBusinessDesc, setEditBusinessDesc] = useState("");
   const [editBucketIds, setEditBucketIds] = useState(() => new Set<string>());
@@ -239,12 +240,16 @@ export function BusinessesSection({
     if (!createOpen && !editOpen) return;
     function onKey(e: KeyboardEvent) {
       if (e.key !== "Escape") return;
+      if (createOpen && createConfirmStep) {
+        setCreateConfirmStep(false);
+        return;
+      }
       if (createOpen) closeCreateModal();
       else if (editOpen) closeEditModal();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [createOpen, editOpen]);
+  }, [createOpen, editOpen, createConfirmStep]);
 
   useEffect(() => {
     if (!(createOpen || editOpen)) return;
@@ -308,6 +313,7 @@ export function BusinessesSection({
       return null;
     });
     if (logoInputRef.current) logoInputRef.current.value = "";
+    setCreateConfirmStep(false);
   }
 
   function openCreateModal() {
@@ -396,7 +402,7 @@ export function BusinessesSection({
   async function saveAnalyticsTopics() {
     if (!primary?.id) return;
     if (editBucketIds.size === 0) {
-      setErr("Choose at least one analytics topic.");
+      setErr("Pick at least one theme.");
       return;
     }
     setSaving(true);
@@ -463,7 +469,7 @@ export function BusinessesSection({
     }
   }
 
-  async function submitCreateBusiness() {
+  function beginCreateBusinessSubmit() {
     const displayName = createName.trim();
     const locationNames = createLocationsText
       .split("\n")
@@ -475,7 +481,21 @@ export function BusinessesSection({
       return;
     }
     if (createBucketIds.size === 0) {
-      setCreateErr("Choose at least one analytics topic.");
+      setCreateErr("Pick at least one theme.");
+      return;
+    }
+    setCreateErr("");
+    setCreateConfirmStep(true);
+  }
+
+  async function executeCreateBusiness() {
+    const displayName = createName.trim();
+    const locationNames = createLocationsText
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (!displayName || locationNames.length === 0 || createBucketIds.size === 0) {
+      setCreateConfirmStep(false);
       return;
     }
     setSaving(true);
@@ -740,7 +760,7 @@ export function BusinessesSection({
             </div>
           ) : (
             <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5">
-              <p className="filter-label">Get started</p>
+              <p className="admin-field-label">Get started</p>
               <p className="muted mt-2 text-sm leading-relaxed">
                 Add your business name, at least one location, and optionally a
                 logo. After that you can generate the private review link and QR
@@ -781,12 +801,12 @@ export function BusinessesSection({
                 id="create-business-title"
                 className="text-sm font-semibold tracking-tight text-[var(--fg)]"
               >
-                Set up your business
+                {createConfirmStep ? "Confirm themes" : "Set up your business"}
               </h2>
               <p className="muted mt-1 text-xs leading-relaxed">
-                Enter a name, at least one location, and optionally a logo. You
-                can edit details and generate your customer link and QR
-                afterwards.
+                {createConfirmStep
+                  ? "Review what each theme covers. Confirm to create your business, or go back to edit."
+                  : "Enter a name, at least one location, and optionally a logo. You can edit details and generate your customer link and QR afterwards."}
               </p>
               {createErr ? (
                 <p className="mt-3 text-sm text-[var(--chart-4)]" role="alert">
@@ -794,151 +814,229 @@ export function BusinessesSection({
                 </p>
               ) : null}
 
-              <div className="mt-4 space-y-4">
-                <label className="block">
-                  <span className="filter-label">Business name</span>
-                  <input
-                    className="mt-1 block w-full border border-[var(--line)] bg-[var(--surface)] px-2 py-1.5 text-sm text-[var(--fg)]"
-                    value={createName}
-                    onChange={(e) => setCreateName(e.target.value)}
-                    placeholder="e.g. Northside Coffee"
-                    autoComplete="organization"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="filter-label">Locations (one per line)</span>
-                  <textarea
-                    className="review-textarea mt-1 font-mono text-sm"
-                    rows={4}
-                    value={createLocationsText}
-                    onChange={(e) => setCreateLocationsText(e.target.value)}
-                    placeholder={
-                      "Ashok Vihar Delhi\nConnaught Place\nLaxmi Nagar"
-                    }
-                  />
-                </label>
-
-                <div className="space-y-3">
-                  <label className="block">
-                    <span className="filter-label">Describe your business</span>
-                    <textarea
-                      className="review-textarea mt-1 text-sm"
-                      rows={3}
-                      value={createBusinessDesc}
-                      onChange={(e) => setCreateBusinessDesc(e.target.value)}
-                      placeholder="What you sell, who you serve, online vs in-store, delivery, etc."
-                    />
-                  </label>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      className="btn-ghost text-xs disabled:opacity-45"
-                      disabled={
-                        bucketSuggestLoading ||
-                        createBusinessDesc.trim().length < 8
-                      }
-                      onClick={() => void requestBucketSuggestions("create")}
-                    >
-                      {bucketSuggestLoading ? "Suggesting…" : "Suggest analytics topics"}
-                    </button>
-                    <span className="muted text-[11px]">
-                      Uses AI to pick themes; you can change checkboxes anytime.
-                    </span>
-                  </div>
-                  {bucketSuggestNote ? (
-                    <p className="muted text-xs leading-relaxed">
-                      {bucketSuggestNote}
-                    </p>
-                  ) : null}
-
+              {createConfirmStep ? (
+                <div className="mt-4">
                   <div>
-                    <span className="filter-label">
-                      Analytics topics to track in reviews
+                    <span className="admin-field-label">
+                      Themes for analytics
                     </span>
                     <p className="muted mt-1 text-[11px] leading-relaxed">
-                      Choose at least one. Add any topics beyond the suggestion.
+                      Pick at least one.
                     </p>
-                    <div className="mt-2 max-h-52 space-y-2 overflow-y-auto border border-[var(--line)] bg-[var(--surface)] p-3">
+                    <div
+                      className="mt-2 max-h-[min(52vh,440px)] space-y-3 overflow-y-auto border border-[var(--line)] bg-[var(--surface)] p-3"
+                      role="list"
+                    >
                       {bucketCatalog?.length ? (
                         bucketCatalog.map((b) => (
-                          <label
+                          <div
                             key={b.id}
-                            className="flex cursor-pointer gap-2 text-sm leading-snug"
+                            className="flex gap-3 text-sm leading-snug"
+                            role="listitem"
+                            aria-label={
+                              createBucketIds.has(b.id)
+                                ? `${b.label}, included`
+                                : `${b.label}, not included`
+                            }
                           >
-                            <input
-                              type="checkbox"
-                              className="mt-0.5 shrink-0"
-                              checked={createBucketIds.has(b.id)}
-                              onChange={() => toggleCreateBucket(b.id)}
-                            />
-                            <span className="min-w-0">
-                              <span className="font-medium text-[var(--fg)]">
-                                {b.label}
-                              </span>
-                              <span className="muted mt-0.5 block text-[11px]">
-                                {b.description}
-                              </span>
+                            <span
+                              className="mt-0.5 w-5 shrink-0 text-center font-mono text-[11px] text-[var(--accent-soft)]"
+                              aria-hidden
+                            >
+                              {createBucketIds.has(b.id) ? "✓" : ""}
                             </span>
-                          </label>
+                            <div className="min-w-0">
+                              <div className="font-medium text-[var(--fg)]">
+                                {b.label}
+                              </div>
+                              <p className="muted mt-0.5 text-[11px] leading-relaxed">
+                                {b.description}
+                              </p>
+                            </div>
+                          </div>
                         ))
                       ) : (
-                        <p className="muted font-mono text-[11px]">
-                          Loading topics…
-                        </p>
+                        <p className="muted text-[11px]">Loading…</p>
                       )}
                     </div>
                   </div>
-                </div>
 
-                <div>
-                  <span className="filter-label">Logo</span>
-                  <div className="mt-2 flex flex-wrap items-end gap-3">
-                    <input
-                      ref={logoInputRef}
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp,image/gif"
-                      className="max-w-full text-sm text-[var(--fg-soft)] file:mr-2 file:rounded file:border file:border-[var(--line)] file:bg-[var(--surface)] file:px-2 file:py-1 file:text-xs file:text-[var(--fg)]"
-                      onChange={onCreateLogoChange}
-                    />
-                    {logoPreviewUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={logoPreviewUrl}
-                        alt=""
-                        className="h-14 w-14 rounded-md border border-[var(--line)] object-contain"
-                      />
-                    ) : null}
+                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      className="btn-ghost"
+                      disabled={saving}
+                      onClick={() => setCreateConfirmStep(false)}
+                    >
+                      Back
+                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="btn-ghost"
+                        disabled={saving}
+                        onClick={closeCreateModal}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-solid disabled:opacity-45"
+                        disabled={saving}
+                        onClick={() => void executeCreateBusiness()}
+                      >
+                        {saving ? "Saving…" : "Confirm & save"}
+                      </button>
+                    </div>
                   </div>
-                  <p className="muted mt-1 text-[11px]">
-                    Optional. PNG, JPEG, WebP, or GIF — max 2MB.
-                  </p>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="mt-4 space-y-4">
+                    <label className="block">
+                      <span className="admin-field-label">Business name</span>
+                      <input
+                        className="mt-1 block w-full border border-[var(--line)] bg-[var(--surface)] px-2 py-1.5 text-sm text-[var(--fg)]"
+                        value={createName}
+                        onChange={(e) => setCreateName(e.target.value)}
+                        placeholder="e.g. Northside Coffee"
+                        autoComplete="organization"
+                      />
+                    </label>
 
-              <div className="mt-6 flex flex-wrap justify-end gap-2">
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  disabled={saving}
-                  onClick={closeCreateModal}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn-solid disabled:opacity-45"
-                  disabled={
-                    saving ||
-                    !createName.trim() ||
-                    !createLocationsText.split("\n").some((l) => l.trim()) ||
-                    createBucketIds.size === 0
-                  }
-                  onClick={() => void submitCreateBusiness()}
-                >
-                  {saving ? "Saving…" : "Save business"}
-                </button>
-              </div>
+                    <label className="block">
+                      <span className="admin-field-label">Locations (one per line)</span>
+                      <textarea
+                        className="review-textarea mt-1 font-mono text-sm"
+                        rows={4}
+                        value={createLocationsText}
+                        onChange={(e) => setCreateLocationsText(e.target.value)}
+                        placeholder={
+                          "Ashok Vihar Delhi\nConnaught Place\nLaxmi Nagar"
+                        }
+                      />
+                    </label>
+
+                    <div className="space-y-3">
+                      <label className="block">
+                        <span className="admin-field-label">About your business</span>
+                        <textarea
+                          className="review-textarea mt-1 text-sm"
+                          rows={3}
+                          value={createBusinessDesc}
+                          onChange={(e) => setCreateBusinessDesc(e.target.value)}
+                          placeholder="What you sell, who you serve, online vs in-store, delivery, etc."
+                        />
+                      </label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          className="btn-ghost text-xs disabled:opacity-45"
+                          disabled={
+                            bucketSuggestLoading ||
+                            createBusinessDesc.trim().length < 8
+                          }
+                          onClick={() => void requestBucketSuggestions("create")}
+                        >
+                          {bucketSuggestLoading ? "Working…" : "Match topics"}
+                        </button>
+                        <span className="muted text-[11px]">
+                          Prefills checkboxes from the text above.
+                        </span>
+                      </div>
+                      {bucketSuggestNote ? (
+                        <p className="muted text-xs leading-relaxed">
+                          {bucketSuggestNote}
+                        </p>
+                      ) : null}
+
+                      <div>
+                        <span className="admin-field-label">
+                          Themes for analytics
+                        </span>
+                        <p className="muted mt-1 text-[11px] leading-relaxed">
+                          Pick at least one.
+                        </p>
+                        <div className="mt-2 max-h-52 space-y-2 overflow-y-auto border border-[var(--line)] bg-[var(--surface)] p-3">
+                          {bucketCatalog?.length ? (
+                            bucketCatalog.map((b) => (
+                              <label
+                                key={b.id}
+                                className="flex cursor-pointer gap-2 text-sm leading-snug"
+                              >
+                                <input
+                                  type="checkbox"
+                                  className="mt-0.5 shrink-0"
+                                  checked={createBucketIds.has(b.id)}
+                                  onChange={() => toggleCreateBucket(b.id)}
+                                />
+                                <span className="min-w-0">
+                                  <span className="font-medium text-[var(--fg)]">
+                                    {b.label}
+                                  </span>
+                                  <span className="muted mt-0.5 block text-[11px]">
+                                    {b.description}
+                                  </span>
+                                </span>
+                              </label>
+                            ))
+                          ) : (
+                            <p className="muted text-[11px]">Loading…</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="admin-field-label">Logo</span>
+                      <div className="mt-2 flex flex-wrap items-end gap-3">
+                        <input
+                          ref={logoInputRef}
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp,image/gif"
+                          className="max-w-full text-sm text-[var(--fg-soft)] file:mr-2 file:rounded file:border file:border-[var(--line)] file:bg-[var(--surface)] file:px-2 file:py-1 file:text-xs file:text-[var(--fg)]"
+                          onChange={onCreateLogoChange}
+                        />
+                        {logoPreviewUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={logoPreviewUrl}
+                            alt=""
+                            className="h-14 w-14 rounded-md border border-[var(--line)] object-contain"
+                          />
+                        ) : null}
+                      </div>
+                      <p className="muted mt-1 text-[11px]">
+                        Optional. PNG, JPEG, WebP, or GIF — max 2MB.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap justify-end gap-2">
+                    <button
+                      type="button"
+                      className="btn-ghost"
+                      disabled={saving}
+                      onClick={closeCreateModal}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-solid disabled:opacity-45"
+                      disabled={
+                        saving ||
+                        !createName.trim() ||
+                        !createLocationsText.split("\n").some((l) => l.trim()) ||
+                        createBucketIds.size === 0
+                      }
+                      onClick={() => void beginCreateBusinessSubmit()}
+                    >
+                      Save business
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>,
           document.body
@@ -976,12 +1074,12 @@ export function BusinessesSection({
 
               <div className="mt-6 space-y-8">
                 <section className="space-y-4">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
+                  <h3 className="text-sm font-semibold text-[var(--fg)]">
                     Name &amp; logo
                   </h3>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block sm:col-span-2">
-                      <span className="filter-label">Business name</span>
+                      <span className="admin-field-label">Business name</span>
                       <input
                         className="mt-1 block w-full border border-[var(--line)] bg-[var(--surface)] px-2 py-1.5 text-sm"
                         value={editName}
@@ -989,7 +1087,7 @@ export function BusinessesSection({
                       />
                     </label>
                     <label className="block sm:col-span-2">
-                      <span className="filter-label">Logo URL</span>
+                      <span className="admin-field-label">Logo URL</span>
                       <input
                         className="mt-1 block w-full border border-[var(--line)] bg-[var(--surface)] px-2 py-1.5 text-sm"
                         value={editLogo}
@@ -998,7 +1096,7 @@ export function BusinessesSection({
                       />
                     </label>
                     <div className="sm:col-span-2">
-                      <span className="filter-label">Or upload logo</span>
+                      <span className="admin-field-label">Or upload logo</span>
                       <input
                         type="file"
                         accept="image/png,image/jpeg,image/webp,image/gif"
@@ -1010,7 +1108,7 @@ export function BusinessesSection({
                       </p>
                       {editLogo.trim() && ownerLogoImgSrc(editLogo.trim()) ? (
                         <div className="mt-3 flex items-center gap-2">
-                          <span className="filter-label">Preview</span>
+                          <span className="admin-field-label">Preview</span>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={ownerLogoImgSrc(editLogo.trim())!}
@@ -1032,15 +1130,15 @@ export function BusinessesSection({
                 </section>
 
                 <section className="space-y-4 border-t border-[var(--line)] pt-8">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
+                  <h3 className="text-sm font-semibold text-[var(--fg)]">
                     Analytics topics
                   </h3>
                   <p className="muted text-xs leading-relaxed">
-                    Describe your business and get suggested themes, or choose
-                    manually. These control what appears on your Analytics page.
+                    Used on your Analytics page. Describe your business to
+                    pre-fill checkboxes, or set them yourself.
                   </p>
                   <label className="block">
-                    <span className="filter-label">Business description</span>
+                    <span className="admin-field-label">About your business</span>
                     <textarea
                       className="review-textarea mt-1 text-sm"
                       rows={3}
@@ -1059,8 +1157,11 @@ export function BusinessesSection({
                       }
                       onClick={() => void requestBucketSuggestions("edit")}
                     >
-                      {bucketSuggestLoading ? "Suggesting…" : "Suggest analytics topics"}
+                      {bucketSuggestLoading ? "Working…" : "Match topics"}
                     </button>
+                    <span className="muted text-[11px]">
+                      Prefills from the text above.
+                    </span>
                   </div>
                   {bucketSuggestNote ? (
                     <p className="muted text-xs leading-relaxed">
@@ -1068,7 +1169,7 @@ export function BusinessesSection({
                     </p>
                   ) : null}
                   <div>
-                    <span className="filter-label">Topics to include</span>
+                    <span className="admin-field-label">Themes for analytics</span>
                     <div className="mt-2 max-h-52 space-y-2 overflow-y-auto border border-[var(--line)] bg-[var(--surface)] p-3">
                       {bucketCatalog?.length ? (
                         bucketCatalog.map((b) => (
@@ -1093,9 +1194,7 @@ export function BusinessesSection({
                           </label>
                         ))
                       ) : (
-                        <p className="muted font-mono text-[11px]">
-                          Loading topics…
-                        </p>
+                        <p className="muted text-[11px]">Loading…</p>
                       )}
                     </div>
                   </div>
@@ -1105,12 +1204,12 @@ export function BusinessesSection({
                     disabled={saving || editBucketIds.size === 0}
                     onClick={() => void saveAnalyticsTopics()}
                   >
-                    Save analytics topics
+                    Save themes
                   </button>
                 </section>
 
                 <section className="space-y-4 border-t border-[var(--line)] pt-8">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
+                  <h3 className="text-sm font-semibold text-[var(--fg)]">
                     Locations
                   </h3>
                   <p className="muted text-xs leading-relaxed">
@@ -1137,7 +1236,7 @@ export function BusinessesSection({
                 </section>
 
                 <section className="space-y-4 border-t border-[var(--line)] pt-8">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
+                  <h3 className="text-sm font-semibold text-[var(--fg)]">
                     Customer link &amp; QR code
                   </h3>
                   <p className="muted text-xs leading-relaxed">
