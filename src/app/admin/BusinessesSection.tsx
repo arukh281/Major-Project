@@ -393,7 +393,7 @@ export function BusinessesSection({
   async function saveAnalyticsTopics() {
     if (!primary?.id) return;
     if (editBucketIds.size === 0) {
-      setErr("Pick at least one theme.");
+      setErr("Choose at least one theme.");
       return;
     }
     setSaving(true);
@@ -515,7 +515,7 @@ export function BusinessesSection({
           : null;
       setBucketSuggestNote(
         summary ??
-          "Based on your description, these analytics themes should suit you best. Uncheck any you do not want."
+          "Themes are pre-selected from your description. Uncheck any you do not want to track."
       );
     } catch {
       setCreateBucketIds(allIds);
@@ -608,7 +608,7 @@ export function BusinessesSection({
   async function saveCreateBusinessAnalytics() {
     if (!createPendingBusinessId) return;
     if (createBucketIds.size === 0) {
-      setCreateErr("Pick at least one theme.");
+      setCreateErr("Choose at least one theme.");
       return;
     }
     setSaving(true);
@@ -891,8 +891,8 @@ export function BusinessesSection({
               </h2>
               <p className="muted mt-1 text-xs leading-relaxed">
                 {createAnalyticsStep
-                  ? "Your business is saved. Based on your description, these are the themes we think will suit you best for review analytics. Adjust the checkboxes, then confirm to finish."
-                  : "Enter a name, at least one location, and optionally a logo and short description. After you save, you will confirm which analytics themes to track."}
+                  ? "Your business is saved. Review the themes below, then confirm."
+                  : "Enter a name, at least one location, and optionally a logo and short description. After save, you will confirm analytics themes in one step."}
               </p>
               {createErr ? (
                 <p className="mt-3 text-sm text-[var(--chart-4)]" role="alert">
@@ -903,17 +903,17 @@ export function BusinessesSection({
               {createAnalyticsStep ? (
                 <div className="mt-4">
                   {bucketSuggestNote ? (
-                    <p className="text-sm leading-relaxed text-[var(--fg)]">
+                    <p className="mt-3 text-sm leading-relaxed text-[var(--fg)]">
                       {bucketSuggestNote}
                     </p>
                   ) : null}
 
-                  <div className={bucketSuggestNote ? "mt-4" : ""}>
-                    <span className="admin-field-label">Themes for analytics</span>
-                    <p className="muted mt-1 text-[11px] leading-relaxed">
-                      Pick at least one.
+                  <fieldset className={`m-0 min-w-0 border-0 p-0 ${bucketSuggestNote ? "mt-4" : "mt-3"}`}>
+                    <legend className="admin-field-label px-0">Themes for analytics</legend>
+                    <p className="muted mt-1 text-xs leading-relaxed">
+                      Choose at least one.
                     </p>
-                    <div className="mt-2 max-h-[min(52vh,440px)] space-y-2 overflow-y-auto border border-[var(--line)] bg-[var(--surface)] p-3">
+                    <div className="mt-2 max-h-[min(52vh,440px)] space-y-2 overflow-y-auto rounded-md border border-[var(--line)] bg-[var(--surface)] p-3">
                       {bucketCatalog?.length ? (
                         bucketCatalog.map((b) => (
                           <label
@@ -940,7 +940,7 @@ export function BusinessesSection({
                         <p className="muted text-[11px]">Loading…</p>
                       )}
                     </div>
-                  </div>
+                  </fieldset>
 
                   <div className="mt-6 flex flex-wrap justify-end gap-2">
                     <button
@@ -1147,11 +1147,11 @@ export function BusinessesSection({
 
                 <section className="space-y-4 border-t border-[var(--line)] pt-8">
                   <h3 className="text-sm font-semibold text-[var(--fg)]">
-                    Analytics topics
+                    Analytics themes
                   </h3>
                   <p className="muted text-xs leading-relaxed">
-                    Used on your Analytics page. Describe your business to
-                    pre-fill checkboxes, or set them yourself.
+                    These themes shape your Analytics page. Describe the business
+                    to get suggestions, or set the list yourself.
                   </p>
                   <label className="block">
                     <span className="admin-field-label">About your business</span>
@@ -1171,22 +1171,25 @@ export function BusinessesSection({
                         bucketSuggestLoading ||
                         editBusinessDesc.trim().length < 8
                       }
-                          onClick={() => void requestBucketSuggestions()}
+                      onClick={() => void requestBucketSuggestions()}
                     >
-                      {bucketSuggestLoading ? "Working…" : "Match topics"}
+                      {bucketSuggestLoading ? "Working…" : "Suggest from description"}
                     </button>
                     <span className="muted text-[11px]">
-                      Prefills from the text above.
+                      Uses the text field above.
                     </span>
                   </div>
                   {bucketSuggestNote ? (
-                    <p className="muted text-xs leading-relaxed">
+                    <p className="text-sm leading-relaxed text-[var(--fg)]">
                       {bucketSuggestNote}
                     </p>
                   ) : null}
-                  <div>
-                    <span className="admin-field-label">Themes for analytics</span>
-                    <div className="mt-2 max-h-52 space-y-2 overflow-y-auto border border-[var(--line)] bg-[var(--surface)] p-3">
+                  <fieldset className="m-0 min-w-0 border-0 p-0">
+                    <legend className="admin-field-label px-0">Themes for analytics</legend>
+                    <p className="muted mt-1 text-xs leading-relaxed">
+                      Choose at least one.
+                    </p>
+                    <div className="mt-2 max-h-52 space-y-2 overflow-y-auto rounded-md border border-[var(--line)] bg-[var(--surface)] p-3">
                       {bucketCatalog?.length ? (
                         bucketCatalog.map((b) => (
                           <label
@@ -1213,7 +1216,7 @@ export function BusinessesSection({
                         <p className="muted text-[11px]">Loading…</p>
                       )}
                     </div>
-                  </div>
+                  </fieldset>
                   <button
                     type="button"
                     className="btn-solid disabled:opacity-45"

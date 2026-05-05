@@ -95,7 +95,7 @@ export function formatAnalyticsBucketSuggestionSummary(
     .filter((x): x is string => Boolean(x));
   if (labels.length === 0) return "";
   const joined = labels.join(" · ");
-  return `Suggested: ${joined}. Adjust checkboxes if needed.`;
+  return `Suggested themes: ${joined}.`;
 }
 
 const KNOWN_SUBJECT_IDS = new Set<SubjectBucketId>(
