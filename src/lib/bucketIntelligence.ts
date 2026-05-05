@@ -88,6 +88,18 @@ export const BUCKET_DEFINITIONS: Array<{
   },
 ];
 
+/** Short UI line after AI bucket suggestions (deterministic; avoids long LLM prose). */
+export function formatAnalyticsBucketSuggestionSummary(
+  ids: readonly SubjectBucketId[]
+): string {
+  const labels = ids
+    .map((id) => BUCKET_DEFINITIONS.find((b) => b.id === id)?.label)
+    .filter((x): x is string => Boolean(x));
+  if (labels.length === 0) return "";
+  const joined = labels.join(" · ");
+  return `Suggested themes: ${joined}. Uncheck any you do not need.`;
+}
+
 const KNOWN_SUBJECT_IDS = new Set<SubjectBucketId>(
   BUCKET_DEFINITIONS.map((b) => b.id)
 );

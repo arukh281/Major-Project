@@ -368,7 +368,7 @@ export function BusinessesSection({
       });
       const j = (await res.json().catch(() => ({}))) as {
         recommendedIds?: string[];
-        rationale?: string | null;
+        summary?: string | null;
         error?: string;
       };
       if (!res.ok) {
@@ -384,8 +384,8 @@ export function BusinessesSection({
         setEditBucketIds(new Set(ids));
       }
       setBucketSuggestNote(
-        typeof j.rationale === "string" && j.rationale.trim()
-          ? j.rationale.trim()
+        typeof j.summary === "string" && j.summary.trim()
+          ? j.summary.trim()
           : null
       );
     } finally {

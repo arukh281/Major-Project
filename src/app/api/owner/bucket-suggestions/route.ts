@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import {
   BUCKET_DEFINITIONS,
+  formatAnalyticsBucketSuggestionSummary,
   type SubjectBucketId,
 } from "@/lib/bucketIntelligence";
 import { callLlama, parseJsonFromLlmContent } from "@/lib/llm";
@@ -11,10 +12,11 @@ const BodySchema = z.object({
   description: z.string().min(8).max(4000),
 });
 
-const ResponseSchema = z.object({
-  recommendedIds: z.array(z.string()),
-  rationale: z.string().optional(),
-});
+const ResponseSchema = z
+  .object({
+    recommendedIds: z.array(z.string()),
+  })
+  .passthrough();
 
 const BUCKET_CATALOG_TEXT = BUCKET_DEFINITIONS.map(
   (b) =>
@@ -52,12 +54,13 @@ Catalog:
 ${BUCKET_CATALOG_TEXT}
 
 Schema:
-{ "recommendedIds": string[], "rationale": string }
+{ "recommendedIds": string[] }
 
 Rules:
 - recommendedIds must be a subset of the ids above.
 - Pick every bucket that is plausibly relevant to what customers would mention in reviews (include 2–6 ids in most cases; all six only if truly appropriate).
-- For a very narrow business, fewer buckets is fine.`;
+- For a very narrow business, fewer buckets is fine.
+- Reply with JSON only; no extra keys or commentary outside JSON.`;
 
   const user = `Business description:\n${body.description.trim()}`;
 
@@ -97,7 +100,7 @@ Rules:
 
     return NextResponse.json({
       recommendedIds,
-      rationale: check.data.rationale?.trim() || null,
+      summary: formatAnalyticsBucketSuggestionSummary(recommendedIds),
     });
   } catch (e) {
     console.error("bucket-suggestions", e);
