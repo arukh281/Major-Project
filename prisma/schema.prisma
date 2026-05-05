@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  googleSub     String   @unique
+  email         String?
+  name          String?
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  business             Business?
+  googleAccountLinks   GoogleAccountLink[]
+}
+
+model Business {
+  id          String   @id @default(cuid())
+  ownerId     String   @unique
+  displayName String
+  logoUrl     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  /// manual | scheduled (scheduled is config-only until cron exists)
+  analyticsBucketMode             String    @default("manual")
+  analyticsBucketLastComputedAt DateTime?
+  analyticsBucketComputeStatus    String    @default("idle")
+  analyticsBucketScheduleCron     String?
+
+  owner        User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  locations    BusinessLocation[]
+  reviewTokens ReviewToken[]
+  reviews      Review[]
+}
+
+model BusinessLocation {
+  id         String   @id @default(cuid())
+  businessId String
+  name       String
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  reviews  Review[]
+
+  @@index([businessId])
+}
+
+model ReviewToken {
+  id         String    @id @default(cuid())
+  token      String    @unique
+  businessId String
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+}
+
+model Review {
+  id                   String   @id @default(uuid())
+  rating               Int
+  userReview           String
+  aiResponse           String
+  aiSummary            String
+  aiActions            String
+  createdAt            DateTime @default(now())
+  businessId           String?
+  businessLocationId   String?
+
+  business           Business?         @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  businessLocation   BusinessLocation? @relation(fields: [businessLocationId], references: [id], onDelete: SetNull)
+
+  @@index([businessId])
+  @@index([businessLocationId])
+}
+
+enum ExternalReviewPlatform {
+  GOOGLE
+}
+
+model GoogleAccountLink {
+  id                 String              @id @default(cuid())
+  ownerId            String
+  googleAccountEmail String?
+  accessToken        String
+  refreshToken       String
+  tokenExpiry        DateTime
+  scope              String
+  lastSyncedAt       DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  owner      User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  locations  GoogleLocation[]
+
+  @@index([ownerId])
+}
+
+model GoogleLocation {
+  id            String            @id @default(cuid())
+  linkId        String
+  accountName   String
+  locationName  String
+  locationTitle String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  link          GoogleAccountLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  reviews       ExternalReview[]
+
+  @@unique([linkId, locationName])
+}
+
+model ExternalReview {
+  id               String                 @id @default(cuid())
+  platform         ExternalReviewPlatform
+  externalReviewId String
+  locationId       String
+  rating           Int
+  comment          String?
+  reviewerName     String?
+  createTime       DateTime
+  updateTime       DateTime?
+  replyText        String?
+  replyUpdateTime  DateTime?
+  sourceUrl        String?
+  aiSummary        String?
+  aiActions        String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  location         GoogleLocation         @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([platform, externalReviewId, locationId])
+  @@index([platform, externalReviewId])
+  @@index([locationId, createTime])
+}
