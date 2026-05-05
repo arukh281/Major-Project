@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { reviewLogoImgSrc } from "@/lib/blobLogoRef";
 import { prisma } from "@/lib/prisma";
 import { ReviewClient } from "./ReviewClient";
 
@@ -39,7 +40,7 @@ export default async function ReviewPage({
       token={token}
       business={{
         displayName: row.business.displayName,
-        logoUrl: row.business.logoUrl,
+        logoUrl: reviewLogoImgSrc(row.business.logoUrl, token),
       }}
       locations={row.business.locations.map((l) => ({
         id: l.id,

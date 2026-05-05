@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import QRCode from "qrcode";
+import { ownerLogoImgSrc } from "@/lib/blobLogoRef";
 
 type MeBusiness = {
   id: string;
@@ -766,6 +767,17 @@ export function BusinessesSection({
                       <p className="muted mt-1 text-[11px]">
                         Upload fills the logo URL — then click Save below.
                       </p>
+                      {editLogo.trim() && ownerLogoImgSrc(editLogo.trim()) ? (
+                        <div className="mt-3 flex items-center gap-2">
+                          <span className="filter-label">Preview</span>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={ownerLogoImgSrc(editLogo.trim())!}
+                            alt=""
+                            className="h-14 w-14 rounded-md border border-[var(--line)] object-contain"
+                          />
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                   <button

@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { put } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
+import { makePrivateBlobLogoRef } from "@/lib/blobLogoRef";
 import { requireOwnerSession } from "@/lib/ownerSession";
 
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -12,6 +13,15 @@ const ALLOWED = new Map([
   ["image/webp", "webp"],
   ["image/gif", "gif"],
 ]);
+
+function isPrivateStorePublicAccessError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return (
+    msg.includes("private store") ||
+    msg.includes("Cannot use public access") ||
+    msg.includes("public access on a private")
+  );
+}
 
 export async function POST(req: NextRequest) {
   const auth = await requireOwnerSession(req);
@@ -45,22 +55,43 @@ export async function POST(req: NextRequest) {
       process.env.VERCEL === "1";
 
     if (useVercelBlob) {
+      const putBase = {
+        contentType: file.type,
+        addRandomSuffix: false,
+      } as const;
+      const pathname = `logos/${name}`;
+
       try {
-        const blob = await put(`logos/${name}`, buf, {
+        const blob = await put(pathname, buf, {
+          ...putBase,
           access: "public",
-          contentType: file.type,
-          addRandomSuffix: false,
         });
         return NextResponse.json({ data: { logoUrl: blob.url } });
-      } catch (blobErr) {
-        console.error(blobErr);
-        return NextResponse.json(
-          {
-            error:
-              "Blob upload failed. In Vercel: open this project → Settings → Environment Variables and add BLOB_READ_WRITE_TOKEN for Production (Storage → your Blob store → connect this project, or copy the read-write token into that variable). Then redeploy. Logos must use public access so review pages can show them.",
-          },
-          { status: 503 }
-        );
+      } catch (firstErr) {
+        if (!isPrivateStorePublicAccessError(firstErr)) {
+          console.error(firstErr);
+          return NextResponse.json(
+            {
+              error:
+                "Blob upload failed. Check BLOB_READ_WRITE_TOKEN in Vercel env, or try again.",
+            },
+            { status: 503 }
+          );
+        }
+        try {
+          const blob = await put(pathname, buf, {
+            ...putBase,
+            access: "private",
+          });
+          const logoUrl = makePrivateBlobLogoRef(blob.pathname);
+          return NextResponse.json({ data: { logoUrl } });
+        } catch (secondErr) {
+          console.error(secondErr);
+          return NextResponse.json(
+            { error: "Blob upload failed (private store)" },
+            { status: 503 }
+          );
+        }
       }
     }
 

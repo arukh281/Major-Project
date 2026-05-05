@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { reviewLogoImgSrc } from "@/lib/blobLogoRef";
 import { prisma } from "@/lib/prisma";
 
 function isTokenActive(row: {
@@ -37,7 +38,7 @@ export async function GET(
   return NextResponse.json({
     business: {
       displayName: row.business.displayName,
-      logoUrl: row.business.logoUrl,
+      logoUrl: reviewLogoImgSrc(row.business.logoUrl, token),
     },
     locations: row.business.locations.map((l) => ({
       id: l.id,
