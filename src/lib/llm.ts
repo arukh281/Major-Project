@@ -2,6 +2,21 @@ import fetch from "node-fetch";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
+/**
+ * Budget tier (~same ballpark as meta-llama/llama-3.1-8b-instruct on OpenRouter),
+ * generally stronger on instructions + JSON than Llama 3.1 8B.
+ * Override with OPENROUTER_MODEL for e.g. openai/gpt-4o-mini (pay more, often best cheap “smart” default).
+ */
+const DEFAULT_OPENROUTER_MODEL = "qwen/qwen-2.5-7b-instruct";
+
+function resolveOpenRouterModel(explicit?: string): string {
+  const fromOpt = explicit?.trim();
+  if (fromOpt) return fromOpt;
+  const fromEnv = process.env.OPENROUTER_MODEL?.trim();
+  if (fromEnv) return fromEnv;
+  return DEFAULT_OPENROUTER_MODEL;
+}
+
 type OpenRouterResponse = {
   choices: {
     message: {
@@ -23,7 +38,7 @@ Use neutral, professional language only. Do not quote or repeat profanity, slurs
 
 export async function callLlama(
   prompt: string,
-  options?: { system?: string; temperature?: number }
+  options?: { system?: string; temperature?: number; model?: string }
 ): Promise<string> {
   const messages: { role: ChatRole; content: string }[] = [];
   if (options?.system) {
@@ -38,7 +53,7 @@ export async function callLlama(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "meta-llama/llama-3.1-8b-instruct",
+      model: resolveOpenRouterModel(options?.model),
       messages,
       temperature: options?.temperature ?? 0.7,
     }),
