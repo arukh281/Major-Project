@@ -5,10 +5,18 @@ import { createPortal } from "react-dom";
 import QRCode from "qrcode";
 import { ownerLogoImgSrc } from "@/lib/blobLogoRef";
 
+type BucketDef = {
+  id: string;
+  label: string;
+  description: string;
+};
+
 type MeBusiness = {
   id: string;
   displayName: string;
   logoUrl: string | null;
+  businessDescription: string | null;
+  analyticsSubjectBucketIds?: string[];
   locations: { id: string; name: string; sortOrder: number }[];
   activeTokens: {
     id: string;
@@ -171,6 +179,15 @@ export function BusinessesSection({
   const [saving, setSaving] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
 
+  const [bucketCatalog, setBucketCatalog] = useState<BucketDef[] | null>(null);
+  const [createBusinessDesc, setCreateBusinessDesc] = useState("");
+  const [createBucketIds, setCreateBucketIds] = useState(() => new Set<string>());
+  const [bucketSuggestLoading, setBucketSuggestLoading] = useState(false);
+  const [bucketSuggestNote, setBucketSuggestNote] = useState<string | null>(null);
+
+  const [editBusinessDesc, setEditBusinessDesc] = useState("");
+  const [editBucketIds, setEditBucketIds] = useState(() => new Set<string>());
+
   useEffect(() => {
     setPortalReady(true);
   }, []);
@@ -230,6 +247,46 @@ export function BusinessesSection({
   }, [createOpen, editOpen]);
 
   useEffect(() => {
+    if (!(createOpen || editOpen)) return;
+    if (bucketCatalog) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/owner/bucket-catalog");
+        if (!res.ok || cancelled) return;
+        const data = (await res.json()) as { buckets?: BucketDef[] };
+        if (!cancelled && data.buckets?.length) {
+          setBucketCatalog(data.buckets);
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [createOpen, editOpen, bucketCatalog]);
+
+  useEffect(() => {
+    if (!createOpen || !bucketCatalog?.length) return;
+    setCreateBucketIds((prev) =>
+      prev.size > 0 ? prev : new Set(bucketCatalog.map((b) => b.id))
+    );
+  }, [createOpen, bucketCatalog]);
+
+  useEffect(() => {
+    if (!editOpen || !primary || !bucketCatalog?.length) return;
+    setEditBusinessDesc(primary.businessDescription ?? "");
+    const stored = primary.analyticsSubjectBucketIds ?? [];
+    const allowed = new Set(bucketCatalog.map((b) => b.id));
+    const picked =
+      stored.length === 0
+        ? bucketCatalog.map((b) => b.id)
+        : stored.filter((id) => allowed.has(id));
+    setEditBucketIds(new Set(picked.length ? picked : [...allowed]));
+  }, [editOpen, primary, bucketCatalog]);
+
+  useEffect(() => {
     return () => {
       if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
     };
@@ -238,6 +295,13 @@ export function BusinessesSection({
   function resetCreateModal() {
     setCreateName("");
     setCreateLocationsText("");
+    setCreateBusinessDesc("");
+    setBucketSuggestNote(null);
+    setCreateBucketIds(
+      bucketCatalog?.length
+        ? new Set(bucketCatalog.map((b) => b.id))
+        : new Set()
+    );
     setCreateLogoFile(null);
     setLogoPreviewUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
@@ -262,6 +326,103 @@ export function BusinessesSection({
 
   function closeEditModal() {
     setEditOpen(false);
+    setBucketSuggestNote(null);
+  }
+
+  function toggleCreateBucket(id: string) {
+    setCreateBucketIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleEditBucket(id: string) {
+    setEditBucketIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  async function requestBucketSuggestions(mode: "create" | "edit") {
+    const desc =
+      mode === "create" ? createBusinessDesc.trim() : editBusinessDesc.trim();
+    if (desc.length < 8) {
+      const msg = "Add at least 8 characters describing your business.";
+      if (mode === "create") setCreateErr(msg);
+      else setErr(msg);
+      return;
+    }
+    setBucketSuggestLoading(true);
+    if (mode === "create") setCreateErr("");
+    else setErr("");
+    try {
+      const res = await fetch("/api/owner/bucket-suggestions", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: desc }),
+      });
+      const j = (await res.json().catch(() => ({}))) as {
+        recommendedIds?: string[];
+        rationale?: string | null;
+        error?: string;
+      };
+      if (!res.ok) {
+        const msg = j.error ?? "Suggestions failed";
+        if (mode === "create") setCreateErr(msg);
+        else setErr(msg);
+        return;
+      }
+      const ids = j.recommendedIds ?? [];
+      if (mode === "create") {
+        setCreateBucketIds(new Set(ids));
+      } else {
+        setEditBucketIds(new Set(ids));
+      }
+      setBucketSuggestNote(
+        typeof j.rationale === "string" && j.rationale.trim()
+          ? j.rationale.trim()
+          : null
+      );
+    } finally {
+      setBucketSuggestLoading(false);
+    }
+  }
+
+  async function saveAnalyticsTopics() {
+    if (!primary?.id) return;
+    if (editBucketIds.size === 0) {
+      setErr("Choose at least one analytics topic.");
+      return;
+    }
+    setSaving(true);
+    setErr("");
+    try {
+      const res = await fetch(`/api/owner/businesses/${primary.id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessDescription: editBusinessDesc.trim() || null,
+          analyticsSubjectBucketIds: [...editBucketIds],
+        }),
+      });
+      if (!res.ok) {
+        const j = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        setErr(j?.error ?? "Could not save analytics settings");
+        return;
+      }
+      setBucketSuggestNote(null);
+      await refresh();
+    } finally {
+      setSaving(false);
+    }
   }
 
   function onCreateLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -313,6 +474,10 @@ export function BusinessesSection({
       setCreateErr("Add at least one location (one per line).");
       return;
     }
+    if (createBucketIds.size === 0) {
+      setCreateErr("Choose at least one analytics topic.");
+      return;
+    }
     setSaving(true);
     setCreateErr("");
     try {
@@ -342,6 +507,8 @@ export function BusinessesSection({
           displayName,
           logoUrl,
           locations: locationNames.map((name) => ({ name })),
+          businessDescription: createBusinessDesc.trim() || undefined,
+          analyticsSubjectBucketIds: [...createBucketIds],
         }),
       });
       if (!res.ok) {
@@ -458,6 +625,7 @@ export function BusinessesSection({
 
   function openEditModal() {
     setErr("");
+    setBucketSuggestNote(null);
     setEditOpen(true);
   }
 
@@ -607,7 +775,7 @@ export function BusinessesSection({
               role="dialog"
               aria-modal="true"
               aria-labelledby="create-business-title"
-              className="panel relative z-10 w-full max-w-md max-h-[min(90vh,640px)] overflow-y-auto overscroll-contain p-5 shadow-lg"
+              className="panel relative z-10 w-full max-w-lg max-h-[min(92vh,760px)] overflow-y-auto overscroll-contain p-5 shadow-lg"
             >
               <h2
                 id="create-business-title"
@@ -651,6 +819,78 @@ export function BusinessesSection({
                   />
                 </label>
 
+                <div className="space-y-3">
+                  <label className="block">
+                    <span className="filter-label">Describe your business</span>
+                    <textarea
+                      className="review-textarea mt-1 text-sm"
+                      rows={3}
+                      value={createBusinessDesc}
+                      onChange={(e) => setCreateBusinessDesc(e.target.value)}
+                      placeholder="What you sell, who you serve, online vs in-store, delivery, etc."
+                    />
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      className="btn-ghost text-xs disabled:opacity-45"
+                      disabled={
+                        bucketSuggestLoading ||
+                        createBusinessDesc.trim().length < 8
+                      }
+                      onClick={() => void requestBucketSuggestions("create")}
+                    >
+                      {bucketSuggestLoading ? "Suggesting…" : "Suggest analytics topics"}
+                    </button>
+                    <span className="muted text-[11px]">
+                      Uses AI to pick themes; you can change checkboxes anytime.
+                    </span>
+                  </div>
+                  {bucketSuggestNote ? (
+                    <p className="muted text-xs leading-relaxed">
+                      {bucketSuggestNote}
+                    </p>
+                  ) : null}
+
+                  <div>
+                    <span className="filter-label">
+                      Analytics topics to track in reviews
+                    </span>
+                    <p className="muted mt-1 text-[11px] leading-relaxed">
+                      Choose at least one. Add any topics beyond the suggestion.
+                    </p>
+                    <div className="mt-2 max-h-52 space-y-2 overflow-y-auto border border-[var(--line)] bg-[var(--surface)] p-3">
+                      {bucketCatalog?.length ? (
+                        bucketCatalog.map((b) => (
+                          <label
+                            key={b.id}
+                            className="flex cursor-pointer gap-2 text-sm leading-snug"
+                          >
+                            <input
+                              type="checkbox"
+                              className="mt-0.5 shrink-0"
+                              checked={createBucketIds.has(b.id)}
+                              onChange={() => toggleCreateBucket(b.id)}
+                            />
+                            <span className="min-w-0">
+                              <span className="font-medium text-[var(--fg)]">
+                                {b.label}
+                              </span>
+                              <span className="muted mt-0.5 block text-[11px]">
+                                {b.description}
+                              </span>
+                            </span>
+                          </label>
+                        ))
+                      ) : (
+                        <p className="muted font-mono text-[11px]">
+                          Loading topics…
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <span className="filter-label">Logo</span>
                   <div className="mt-2 flex flex-wrap items-end gap-3">
@@ -691,7 +931,8 @@ export function BusinessesSection({
                   disabled={
                     saving ||
                     !createName.trim() ||
-                    !createLocationsText.split("\n").some((l) => l.trim())
+                    !createLocationsText.split("\n").some((l) => l.trim()) ||
+                    createBucketIds.size === 0
                   }
                   onClick={() => void submitCreateBusiness()}
                 >
@@ -787,6 +1028,84 @@ export function BusinessesSection({
                     onClick={saveBusiness}
                   >
                     Save name &amp; logo
+                  </button>
+                </section>
+
+                <section className="space-y-4 border-t border-[var(--line)] pt-8">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
+                    Analytics topics
+                  </h3>
+                  <p className="muted text-xs leading-relaxed">
+                    Describe your business and get suggested themes, or choose
+                    manually. These control what appears on your Analytics page.
+                  </p>
+                  <label className="block">
+                    <span className="filter-label">Business description</span>
+                    <textarea
+                      className="review-textarea mt-1 text-sm"
+                      rows={3}
+                      value={editBusinessDesc}
+                      onChange={(e) => setEditBusinessDesc(e.target.value)}
+                      placeholder="What you sell, locations, delivery, etc."
+                    />
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      className="btn-ghost text-xs disabled:opacity-45"
+                      disabled={
+                        bucketSuggestLoading ||
+                        editBusinessDesc.trim().length < 8
+                      }
+                      onClick={() => void requestBucketSuggestions("edit")}
+                    >
+                      {bucketSuggestLoading ? "Suggesting…" : "Suggest analytics topics"}
+                    </button>
+                  </div>
+                  {bucketSuggestNote ? (
+                    <p className="muted text-xs leading-relaxed">
+                      {bucketSuggestNote}
+                    </p>
+                  ) : null}
+                  <div>
+                    <span className="filter-label">Topics to include</span>
+                    <div className="mt-2 max-h-52 space-y-2 overflow-y-auto border border-[var(--line)] bg-[var(--surface)] p-3">
+                      {bucketCatalog?.length ? (
+                        bucketCatalog.map((b) => (
+                          <label
+                            key={b.id}
+                            className="flex cursor-pointer gap-2 text-sm leading-snug"
+                          >
+                            <input
+                              type="checkbox"
+                              className="mt-0.5 shrink-0"
+                              checked={editBucketIds.has(b.id)}
+                              onChange={() => toggleEditBucket(b.id)}
+                            />
+                            <span className="min-w-0">
+                              <span className="font-medium text-[var(--fg)]">
+                                {b.label}
+                              </span>
+                              <span className="muted mt-0.5 block text-[11px]">
+                                {b.description}
+                              </span>
+                            </span>
+                          </label>
+                        ))
+                      ) : (
+                        <p className="muted font-mono text-[11px]">
+                          Loading topics…
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-solid disabled:opacity-45"
+                    disabled={saving || editBucketIds.size === 0}
+                    onClick={() => void saveAnalyticsTopics()}
+                  >
+                    Save analytics topics
                   </button>
                 </section>
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { normalizeIncomingAnalyticsBucketIds } from "@/lib/bucketIntelligence";
 import { prisma } from "@/lib/prisma";
 import { requireOwnerSession } from "@/lib/ownerSession";
 
@@ -28,8 +29,15 @@ export async function PATCH(
     const body = (await req.json()) as {
       displayName?: string;
       logoUrl?: string | null;
+      businessDescription?: string | null;
+      analyticsSubjectBucketIds?: unknown;
     };
-    const data: { displayName?: string; logoUrl?: string | null } = {};
+    const data: {
+      displayName?: string;
+      logoUrl?: string | null;
+      businessDescription?: string | null;
+      analyticsSubjectBucketIds?: string[];
+    } = {};
     if (body.displayName !== undefined) {
       const t = body.displayName.trim();
       if (!t) {
@@ -42,6 +50,17 @@ export async function PATCH(
     }
     if (body.logoUrl !== undefined) {
       data.logoUrl = body.logoUrl?.trim() || null;
+    }
+    if (body.businessDescription !== undefined) {
+      data.businessDescription =
+        typeof body.businessDescription === "string"
+          ? body.businessDescription.trim().slice(0, 4000) || null
+          : null;
+    }
+    if (body.analyticsSubjectBucketIds !== undefined) {
+      data.analyticsSubjectBucketIds = normalizeIncomingAnalyticsBucketIds(
+        body.analyticsSubjectBucketIds
+      );
     }
 
     const updated = await prisma.business.update({

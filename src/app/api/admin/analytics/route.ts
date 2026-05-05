@@ -9,6 +9,7 @@ import { loadBlendedReviewsForOwner } from "@/lib/blendedReviewCorpus";
 import {
   buildBucketIntelligencePayload,
   computeWorstLocationsForWindow,
+  filterTopThemesByActiveSubjects,
   metricsWindowEndExclusive,
   parseAnalyticsRange,
   resolveMetricsWindow,
@@ -18,6 +19,7 @@ import {
   getGoogleLocationIdsForOwner,
   ownedInternalReviewsWhere,
 } from "@/lib/ownerScope";
+import { resolveAnalyticsBucketsForOwner } from "@/lib/ownerAnalyticsBuckets";
 import { requireOwnerSession } from "@/lib/ownerSession";
 
 function toDayKey(d: Date | unknown): string {
@@ -265,12 +267,17 @@ export async function GET(req: NextRequest) {
       locationTitle: r.locationTitle,
     }));
 
-    const { topThemes, alerts } = analyzeThemesAndAlerts(themeInput);
+    const { topThemes: themesRaw, alerts } =
+      analyzeThemesAndAlerts(themeInput);
+
+    const activeBuckets = await resolveAnalyticsBucketsForOwner(ownerId);
+    const topThemes = filterTopThemesByActiveSubjects(themesRaw, activeBuckets);
 
     const bucketPayload = buildBucketIntelligencePayload(
       blendedReviews,
       metricsWindows,
-      range
+      range,
+      activeBuckets
     );
     const windowTotals = summarizeWindow(
       blendedReviews,

@@ -42,6 +42,8 @@ export async function GET(req: NextRequest) {
           id: user.business.id,
           displayName: user.business.displayName,
           logoUrl: user.business.logoUrl,
+          businessDescription: user.business.businessDescription,
+          analyticsSubjectBucketIds: user.business.analyticsSubjectBucketIds,
           locations: user.business.locations.map((l) => ({
             id: l.id,
             name: l.name,

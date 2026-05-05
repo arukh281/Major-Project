@@ -6,6 +6,7 @@ import {
   parseAnalyticsRange,
   resolveMetricsWindow,
 } from "@/lib/bucketIntelligence";
+import { resolveAnalyticsBucketsForOwner } from "@/lib/ownerAnalyticsBuckets";
 import { requireOwnerSession } from "@/lib/ownerSession";
 
 /**
@@ -61,7 +62,12 @@ export async function POST(req: NextRequest) {
       corpusMinTime: corpusMin,
       corpusMaxTime: corpusMax,
     });
-    buildBucketIntelligencePayload(blended, windows, range);
+    buildBucketIntelligencePayload(
+      blended,
+      windows,
+      range,
+      await resolveAnalyticsBucketsForOwner(ownerId)
+    );
 
     const now = new Date();
     await prisma.business.update({

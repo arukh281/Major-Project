@@ -5,7 +5,11 @@ import {
   looksLikeLlmRefusal,
   sanitizeReviewForLlm,
 } from "@/lib/reviewLlmSanitize";
-import { fallbackPublicReply, heuristicAdminSummary } from "@/lib/reviewHeuristicFallback";
+import {
+  fallbackPublicReply,
+  heuristicAdminSummary,
+  ratingOnlyAdminSummary,
+} from "@/lib/reviewHeuristicFallback";
 import { isSummaryGroundedInReview } from "@/lib/reviewSummaryGrounding";
 
 function isTokenActive(row: {
@@ -30,7 +34,9 @@ type Body = {
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as Body;
-    const { token, businessLocationId, rating, review } = body;
+    const { token, businessLocationId, rating, review: reviewRaw } = body;
+    const review =
+      typeof reviewRaw === "string" ? reviewRaw.trim() : "";
 
     if (!token || typeof token !== "string") {
       return NextResponse.json(
@@ -49,13 +55,6 @@ export async function POST(req: Request) {
     if (!rating || rating < 1 || rating > 5) {
       return NextResponse.json(
         { error: "Invalid rating" },
-        { status: 400 }
-      );
-    }
-
-    if (!review || review.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Review cannot be empty" },
         { status: 400 }
       );
     }
@@ -94,6 +93,24 @@ export async function POST(req: Request) {
     }
 
     const forLlm = sanitizeReviewForLlm(review);
+
+    if (forLlm.length === 0) {
+      const safeResponse = fallbackPublicReply(rating);
+      const safeSummary = ratingOnlyAdminSummary(rating);
+      const saved = await prisma.review.create({
+        data: {
+          rating,
+          userReview: review,
+          aiResponse: safeResponse,
+          aiSummary: safeSummary,
+          aiActions: "",
+          businessId: tokenRow.businessId,
+          businessLocationId: location.id,
+        },
+      });
+      return NextResponse.json({ success: true, data: saved });
+    }
+
     const reviewCue = forLlm;
 
     const userPrompt = `

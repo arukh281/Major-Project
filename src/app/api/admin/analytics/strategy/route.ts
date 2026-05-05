@@ -11,10 +11,12 @@ import { loadBlendedReviewsForOwner } from "@/lib/blendedReviewCorpus";
 import {
   buildBucketIntelligencePayload,
   computeWorstLocationsForWindow,
+  filterTopThemesByActiveSubjects,
   metricsWindowEndExclusive,
   parseAnalyticsRange,
   resolveMetricsWindow,
 } from "@/lib/bucketIntelligence";
+import { resolveAnalyticsBucketsForOwner } from "@/lib/ownerAnalyticsBuckets";
 import { requireOwnerSession } from "@/lib/ownerSession";
 
 export async function POST(req: NextRequest) {
@@ -58,7 +60,14 @@ export async function POST(req: NextRequest) {
       corpusMaxTime: corpusMax,
     });
 
-    const bucketPayload = buildBucketIntelligencePayload(rows, windows, range);
+    const activeBuckets = await resolveAnalyticsBucketsForOwner(ownerId);
+    const bucketPayload = buildBucketIntelligencePayload(
+      rows,
+      windows,
+      range,
+      activeBuckets
+    );
+
     const windowEndEx = metricsWindowEndExclusive(windows);
     const worstLocations = computeWorstLocationsForWindow(
       rows,
@@ -82,7 +91,12 @@ export async function POST(req: NextRequest) {
       locationTitle: r.locationTitle,
     }));
 
-    const { topThemes, alerts } = analyzeThemesAndAlerts(themeInput);
+    const { topThemes: themesRaw, alerts } =
+      analyzeThemesAndAlerts(themeInput);
+    const topThemes = filterTopThemesByActiveSubjects(
+      themesRaw,
+      activeBuckets
+    );
 
     const lowHealthBuckets = bucketPayload.bucketInsights
       .filter(

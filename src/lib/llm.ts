@@ -51,3 +51,11 @@ export async function callLlama(
   const data = (await res.json()) as OpenRouterResponse;
   return data.choices[0].message.content;
 }
+
+/** Parse JSON from model output; tolerates ```json fences. */
+export function parseJsonFromLlmContent(raw: string): unknown {
+  const t = raw.trim();
+  const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const inner = (fence ? fence[1] : t).trim();
+  return JSON.parse(inner);
+}

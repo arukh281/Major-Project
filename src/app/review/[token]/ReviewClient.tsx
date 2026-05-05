@@ -67,27 +67,38 @@ export function ReviewClient({ token, business, locations }: Props) {
 
   return (
     <main className="container-center py-10">
-      <header className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-4">
-          {business.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
+      <header className="mb-10">
+        {business.logoUrl ? (
+          <div className="grid grid-cols-[auto,minmax(0,1fr)] gap-x-4 gap-y-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={business.logoUrl}
               alt=""
-              className="h-14 w-14 shrink-0 rounded-lg object-cover ring-1 ring-[var(--line)]"
+              className="row-span-2 self-center h-14 w-14 shrink-0 rounded-lg object-cover ring-1 ring-[var(--line)]"
             />
-          ) : null}
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--muted)]">
+                Review
+              </p>
+              <h1 className="hero-title mt-1">{business.displayName}</h1>
+            </div>
+            <p className="muted col-start-2 text-sm leading-relaxed">
+              Tell us about your visit. Pick the location you visited, then
+              choose a star rating. Written feedback is optional.
+            </p>
+          </div>
+        ) : (
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--muted)]">
               Review
             </p>
             <h1 className="hero-title mt-1">{business.displayName}</h1>
-            <p className="muted mt-2 max-w-md text-sm leading-relaxed">
+            <p className="muted mt-2 text-sm leading-relaxed">
               Tell us about your visit. Pick the location you visited, then
-              share a rating and a few words.
+              choose a star rating. Written feedback is optional.
             </p>
           </div>
-        </div>
+        )}
       </header>
 
       <section className="review-card">
@@ -137,12 +148,15 @@ export function ReviewClient({ token, business, locations }: Props) {
 
         <label className="block">
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
-            Your feedback
+            Your feedback{" "}
+            <span className="font-normal normal-case tracking-normal text-[var(--muted)]">
+              (optional)
+            </span>
           </div>
           <textarea
             className="review-textarea mt-2"
             rows={6}
-            placeholder="What stood out—service, quality, wait time, atmosphere?"
+            placeholder="Add details if you like—service, quality, wait time, atmosphere…"
             value={review}
             onChange={(e) => setReview(e.target.value)}
           />

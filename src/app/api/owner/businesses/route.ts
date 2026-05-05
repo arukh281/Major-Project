@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { normalizeIncomingAnalyticsBucketIds } from "@/lib/bucketIntelligence";
 import { prisma } from "@/lib/prisma";
 import { requireOwnerSession } from "@/lib/ownerSession";
 
@@ -43,6 +44,8 @@ export async function POST(req: NextRequest) {
       displayName?: string;
       logoUrl?: string | null;
       locations?: Array<{ name?: string }>;
+      businessDescription?: string | null;
+      analyticsSubjectBucketIds?: unknown;
     };
     const displayName = body.displayName?.trim();
     if (!displayName) {
@@ -67,11 +70,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const desc =
+      typeof body.businessDescription === "string"
+        ? body.businessDescription.trim().slice(0, 4000)
+        : "";
+
+    const analyticsCreate =
+      body.analyticsSubjectBucketIds !== undefined
+        ? {
+            analyticsSubjectBucketIds: normalizeIncomingAnalyticsBucketIds(
+              body.analyticsSubjectBucketIds
+            ),
+          }
+        : undefined;
+
     const business = await prisma.business.create({
       data: {
         ownerId: auth.session.userId,
         displayName,
         logoUrl: body.logoUrl?.trim() || null,
+        ...(desc ? { businessDescription: desc } : {}),
+        ...(analyticsCreate ?? {}),
         ...(locationNames.length > 0
           ? {
               locations: {

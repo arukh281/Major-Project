@@ -9,6 +9,19 @@ export function fallbackPublicReply(rating: number): string {
   return "Thank you for taking the time to share feedback—we appreciate it and hope to serve you again soon.";
 }
 
+/** Admin-facing summary when the customer submits stars only (no written review). */
+export function ratingOnlyAdminSummary(rating: number): string {
+  const lines = [
+    `- Star rating only (${rating}/5); no written feedback.`,
+    rating <= 2
+      ? "- Low score suggests dissatisfaction; no specifics provided."
+      : rating >= 4
+        ? "- High score suggests an overall positive experience."
+        : "- Mid-range score with no additional detail.",
+  ];
+  return lines.join("\n");
+}
+
 export function heuristicAdminSummary(
   rating: number,
   sanitizedReviewLower: string

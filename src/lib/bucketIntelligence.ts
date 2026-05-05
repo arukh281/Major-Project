@@ -7,6 +7,7 @@
  * are widened so retail / apparel / services still map into the same buckets
  * (e.g. fabric → quality bucket, fitting room → staff & service).
  */
+import type { ThemeTop } from "@/lib/reviewTextThemes";
 import { matchedThemeNames, snippetFrom } from "@/lib/reviewTextThemes";
 
 export type AnalyticsRange = "week" | "month" | "year" | "all";
@@ -87,8 +88,43 @@ export const BUCKET_DEFINITIONS: Array<{
   },
 ];
 
+const KNOWN_SUBJECT_IDS = new Set<SubjectBucketId>(
+  BUCKET_DEFINITIONS.map((b) => b.id)
+);
+
+/**
+ * DB stores `[]` to mean "all buckets" (legacy default). A non-empty array is an
+ * explicit subset. Invalid ids are dropped; if nothing valid remains, fall back
+ * to all buckets. PATCH may set `[]` to reset to all topics.
+ */
+export function resolveActiveSubjectBucketIds(
+  stored: string[] | null | undefined
+): SubjectBucketId[] {
+  const raw = stored ?? [];
+  if (raw.length === 0) {
+    return BUCKET_DEFINITIONS.map((b) => b.id);
+  }
+  const unique = [...new Set(raw)];
+  const out = unique.filter((id): id is SubjectBucketId =>
+    KNOWN_SUBJECT_IDS.has(id as SubjectBucketId)
+  );
+  return out.length > 0
+    ? out
+    : BUCKET_DEFINITIONS.map((b) => b.id);
+}
+
+/** Validate bucket ids from API JSON; returns unique allowed ids or []. */
+export function normalizeIncomingAnalyticsBucketIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const out = raw.filter(
+    (x): x is string =>
+      typeof x === "string" && KNOWN_SUBJECT_IDS.has(x as SubjectBucketId)
+  );
+  return [...new Set(out)];
+}
+
 /** Lexical theme title → one-or-many subject buckets (deterministic). */
-const THEME_TO_SUBJECTS: Record<string, SubjectBucketId[]> = {
+export const THEME_TO_SUBJECT_BUCKETS: Record<string, SubjectBucketId[]> = {
   "Service speed / wait time": ["staff_service"],
   "Staff behavior": ["staff_service"],
   Cleanliness: ["cleanliness_ambience"],
@@ -104,6 +140,22 @@ const THEME_TO_SUBJECTS: Record<string, SubjectBucketId[]> = {
   "Portion size": ["food_drinks", "stock_items_orders"],
   "Packaging / delivery": ["delivery_ops"],
 };
+
+/** Lexical “top themes” rows filtered to match owner-selected subject buckets. */
+export function filterTopThemesByActiveSubjects(
+  themes: ThemeTop[],
+  activeBucketIds: SubjectBucketId[]
+): ThemeTop[] {
+  const active = new Set(activeBucketIds);
+  if (active.size >= BUCKET_DEFINITIONS.length) return themes;
+
+  return themes.filter((t) => {
+    const mapped =
+      THEME_TO_SUBJECT_BUCKETS[t.theme as keyof typeof THEME_TO_SUBJECT_BUCKETS];
+    if (!mapped?.length) return true;
+    return mapped.some((sid) => active.has(sid));
+  });
+}
 
 /** Extra subject signals not covered by theme names (word-boundary match). */
 const SUBJECT_DIRECT_KEYWORDS: Record<SubjectBucketId, readonly string[]> = {
@@ -228,7 +280,7 @@ export function subjectBucketsForReview(
   const subjects = new Set<SubjectBucketId>();
 
   for (const theme of matchedThemeNames(comment, aiSummary)) {
-    const mapped = THEME_TO_SUBJECTS[theme];
+    const mapped = THEME_TO_SUBJECT_BUCKETS[theme];
     if (mapped) {
       for (const s of mapped) subjects.add(s);
     }
@@ -511,7 +563,9 @@ const MAX_LOCATIONS = 24;
 export function buildBucketIntelligencePayload(
   reviews: NormalizedBlendedReview[],
   windows: MetricsWindowResolved,
-  range: AnalyticsRange
+  range: AnalyticsRange,
+  /** When omitted or empty, all subject buckets are included. */
+  activeBucketIds?: SubjectBucketId[] | null
 ): {
   bucketDefinitions: typeof BUCKET_DEFINITIONS;
   bucketInsights: BucketInsightRow[];
@@ -523,12 +577,22 @@ export function buildBucketIntelligencePayload(
   /** Prior slice ends strictly before current window start. */
   const priorEndExclusive = windows.windowStart;
 
+  const activeResolved =
+    activeBucketIds && activeBucketIds.length > 0
+      ? activeBucketIds
+      : BUCKET_DEFINITIONS.map((b) => b.id);
+  const activeSet = new Set<SubjectBucketId>(activeResolved);
+  const defsActive = BUCKET_DEFINITIONS.filter((d) => activeSet.has(d.id));
+  const allIds = defsActive.map((d) => d.id);
+
   const subjectsByReview = reviews.map((r) => ({
     r,
-    subjects: new Set(subjectBucketsForReview(r.comment, r.aiSummary)),
+    subjects: new Set(
+      [...subjectBucketsForReview(r.comment, r.aiSummary)].filter((sid) =>
+        activeSet.has(sid)
+      )
+    ),
   }));
-
-  const allIds = BUCKET_DEFINITIONS.map((b) => b.id);
 
   const fullCount = new Map<SubjectBucketId, number>();
   const winRatings = new Map<SubjectBucketId, number[]>();
@@ -565,7 +629,7 @@ export function buildBucketIntelligencePayload(
     }
   }
 
-  const bucketInsights: BucketInsightRow[] = BUCKET_DEFINITIONS.map((def) => {
+  const bucketInsights: BucketInsightRow[] = defsActive.map((def) => {
     const taggedCountFullCorpus = fullCount.get(def.id) ?? 0;
     const wr = winRatings.get(def.id) ?? [];
     const taggedCountWindow = wr.length;
@@ -622,7 +686,7 @@ export function buildBucketIntelligencePayload(
     const dk = dayKeyUtc(d);
     const dayStart = d;
     const dayEnd = addUtcDays(d, 1);
-    for (const def of BUCKET_DEFINITIONS) {
+    for (const def of defsActive) {
       const dayRatings: number[] = [];
       for (const { r, subjects } of subjectsByReview) {
         if (!subjects.has(def.id)) continue;
@@ -691,7 +755,7 @@ export function buildBucketIntelligencePayload(
   const bucketByLocation: BucketByLocationRow[] = topLocs.map(({ locationId, title, cell }) => ({
     locationId,
     title,
-    buckets: BUCKET_DEFINITIONS.map((def) => {
+    buckets: defsActive.map((def) => {
       const wr = cell.winByBucket.get(def.id) ?? [];
       const taggedCountWindow = wr.length;
       const taggedCountFullCorpus = cell.fullByBucket.get(def.id) ?? 0;
@@ -728,7 +792,7 @@ export function buildBucketIntelligencePayload(
   };
 
   return {
-    bucketDefinitions: BUCKET_DEFINITIONS,
+    bucketDefinitions: defsActive,
     bucketInsights,
     bucketTrend,
     bucketByLocation,

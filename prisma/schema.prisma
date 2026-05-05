@@ -28,6 +28,10 @@ model Business {
   ownerId     String   @unique
   displayName String
   logoUrl     String?
+  /// Free-text description for onboarding; used for LLM analytics-bucket suggestions only.
+  businessDescription String?
+  /// Subject buckets to show in analytics; empty = all buckets (legacy default).
+  analyticsSubjectBucketIds String[] @default([])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
