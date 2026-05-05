@@ -40,23 +40,28 @@ export async function POST(req: NextRequest) {
     const buf = Buffer.from(await file.arrayBuffer());
     const name = `${randomUUID()}.${ext}`;
 
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      const blob = await put(`logos/${name}`, buf, {
-        access: "public",
-        contentType: file.type,
-        addRandomSuffix: false,
-      });
-      return NextResponse.json({ data: { logoUrl: blob.url } });
-    }
+    const useVercelBlob =
+      Boolean(process.env.BLOB_READ_WRITE_TOKEN) ||
+      process.env.VERCEL === "1";
 
-    if (process.env.VERCEL) {
-      return NextResponse.json(
-        {
-          error:
-            "Logo upload is not configured for production. In Vercel: Storage → Blob → create a store and link this project (sets BLOB_READ_WRITE_TOKEN), then redeploy.",
-        },
-        { status: 503 }
-      );
+    if (useVercelBlob) {
+      try {
+        const blob = await put(`logos/${name}`, buf, {
+          access: "public",
+          contentType: file.type,
+          addRandomSuffix: false,
+        });
+        return NextResponse.json({ data: { logoUrl: blob.url } });
+      } catch (blobErr) {
+        console.error(blobErr);
+        return NextResponse.json(
+          {
+            error:
+              "Blob upload failed. In Vercel: open this project → Settings → Environment Variables and add BLOB_READ_WRITE_TOKEN for Production (Storage → your Blob store → connect this project, or copy the read-write token into that variable). Then redeploy. Logos must use public access so review pages can show them.",
+          },
+          { status: 503 }
+        );
+      }
     }
 
     const dir = path.join(process.cwd(), "public", "uploads", "logos");
