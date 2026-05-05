@@ -57,32 +57,38 @@ export const BUCKET_DEFINITIONS: Array<{
   {
     id: "staff_service",
     label: "Staff & service",
-    description: "Team, wait times, how people are treated.",
+    description:
+      "People delivering the experience: staff, teachers, instructors, appointments, wait times, treatment.",
   },
   {
     id: "food_drinks",
     label: "Product quality",
-    description: "Food, drinks, materials, defects—overall quality.",
+    description:
+      "Quality of what is delivered: food/beverages, merchandise defects, lesson/teaching quality, instruments or materials, curriculum outcomes—not generic politeness (that is staff_service).",
   },
   {
     id: "cleanliness_ambience",
     label: "Cleanliness & vibe",
-    description: "Hygiene, pests, noise, atmosphere.",
+    description:
+      "Physical space customers experience: hygiene, layout, noise, lighting, studio/classroom atmosphere.",
   },
   {
     id: "stock_items_orders",
     label: "Orders & inventory",
-    description: "Wrong or missing items, stock-outs, mistakes.",
+    description:
+      "Wrong/missing items, stock-outs, fulfillment mistakes—retail shelves, restaurant orders, rentals, e‑commerce. Omit for pure services with no goods or order-like fulfillment.",
   },
   {
     id: "pricing_trust",
     label: "Price & trust",
-    description: "Value, charges, refunds, honesty.",
+    description:
+      "Money and trust: tuition, fees, value, refunds, billing surprises, honesty.",
   },
   {
     id: "delivery_ops",
     label: "Delivery & packaging",
-    description: "Shipping, drivers, how it arrives.",
+    description:
+      "Shipping, couriers, drivers, packaging, tracking—how goods or meals arrive after purchase. Omit when the business is only on‑premise (salon, gym, tutoring, music lessons) with no shipped or courier-delivered orders.",
   },
 ];
 

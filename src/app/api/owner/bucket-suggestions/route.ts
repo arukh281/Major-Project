@@ -57,9 +57,14 @@ Schema:
 { "recommendedIds": string[] }
 
 Rules:
-- recommendedIds must be a subset of the ids above.
-- Pick every bucket that is plausibly relevant to what customers would mention in reviews (include 2–6 ids in most cases; all six only if truly appropriate).
-- For a very narrow business, fewer buckets is fine.
+- recommendedIds must be a subset of the ids above (no invented ids).
+- Infer the business model first (e.g. restaurant, retail, e‑commerce, education/studio, salon, clinic, on‑site services).
+- Prefer precision over breadth: include a bucket only if typical reviewers would **reasonably** talk about that dimension for this business. Do not select a bucket just because it could be stretched by analogy.
+- **delivery_ops**: Include only if the description clearly involves shipping, mail order, packaged goods delivery, or third‑party meal/app delivery. **Exclude** for in‑person‑only services (music lessons, tutoring, coaching, yoga, barbershop, etc.) unless they also ship products or use couriers.
+- **stock_items_orders**: Include only if customers deal with **inventory, wrong/missing items, order mistakes, or rental SKU‑style fulfillment**. **Exclude** for instruction, consulting, or coaching where there is no meaningful “order accuracy” or stock story unless they also run retail/rentals/restaurant ordering.
+- **food_drinks** (label “Product quality”): Use for the quality of the core offering—meals, goods, or **teaching/instruction outcomes and materials**—not for general staff friendliness.
+- **staff_service** vs **pricing_trust**: Most paid services need staff_service; include pricing_trust when fees, tuition, packages, refunds, or value are part of the relationship.
+- Aim for about **2–5** buckets for a focused business; use **all six** only when the description clearly mixes retail or delivery with on‑site service (e.g. shop + shipping + in‑store experience).
 - Reply with JSON only; no extra keys or commentary outside JSON.`;
 
   const user = `Business description:\n${body.description.trim()}`;
