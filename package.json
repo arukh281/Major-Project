@@ -7,7 +7,13 @@
     "build": "prisma migrate deploy && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "seed:google-mock": "node scripts/seed-google-mock.mjs"
+    "seed:google-mock": "node scripts/seed-google-mock.mjs",
+    "ingest:manual-google": "node scripts/ingest-manual-google-reviews.mjs",
+    "ops:local-ingest": "bash scripts/ops/local.sh",
+    "ops:supabase-ingest": "bash scripts/ops/supabase.sh",
+    "ops:reset-local-owner": "bash scripts/ops/delete-local.sh",
+    "ops:reset-supabase-owner": "bash scripts/ops/delete-supabase.sh",
+    "ops:reset-db": "bash scripts/ops/reset-db.sh"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",

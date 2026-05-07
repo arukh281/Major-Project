@@ -36,6 +36,27 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Pasted Google-style reviews for local ingest (may contain PII)
+scripts/manual-google-reviews.json
+
+# report build artifacts
+report/latex-output/**/*.aux
+report/latex-output/**/*.log
+report/latex-output/**/*.out
+report/latex-output/**/*.toc
+report/latex-output/**/*.lof
+report/latex-output/**/*.lot
+report/latex-output/**/*.fls
+report/latex-output/**/*.fdb_latexmk
+report/latex-output copy/**/*.aux
+report/latex-output copy/**/*.log
+report/latex-output copy/**/*.out
+report/latex-output copy/**/*.toc
+report/latex-output copy/**/*.lof
+report/latex-output copy/**/*.lot
+report/latex-output copy/**/*.fls
+report/latex-output copy/**/*.fdb_latexmk
+
 # vercel
 .vercel
 
