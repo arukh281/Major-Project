@@ -65,3 +65,6 @@ report/latex-output copy/**/*.fdb_latexmk
 next-env.d.ts
 
 /src/generated/prisma
+
+report/
+.cursor/
