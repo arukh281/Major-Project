@@ -37,7 +37,7 @@ yarn-error.log*
 .env*
 
 # Pasted Google-style reviews for local ingest (may contain PII)
-scripts/manual-google-reviews.json
+
 
 # report build artifacts
 report/latex-output/**/*.aux
