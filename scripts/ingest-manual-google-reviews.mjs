@@ -28,7 +28,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 function parseArgs(argv) {
   const args = {
     envFile: ".env_supabase",
-    reviewsFile: path.join(__dirname, "manual-google-reviews.json"),
+    reviewsFile: path.join(__dirname, "reviews/manual-google-reviews.json"),
     ownerEmail: null,
     ownerId: null,
     locationTitle: "Google reviews (manual)",
@@ -156,7 +156,7 @@ async function main() {
   if (!fs.existsSync(args.reviewsFile)) {
     throw new Error(
       `Reviews file missing: ${args.reviewsFile}\n` +
-        `Copy scripts/manual-google-reviews.example.json to scripts/manual-google-reviews.json and edit.`
+        `Copy scripts/reviews/manual-google-reviews.example.json to scripts/reviews/manual-google-reviews.json and edit.`
     );
   }
 

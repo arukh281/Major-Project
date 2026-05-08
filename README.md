@@ -51,9 +51,11 @@ Open `http://localhost:3000`, sign in with Google, then continue in `/admin`.
 ### 3) Manual local/Supabase ingest operations
 
 - Main runbook: `docs/runbooks/local-and-supabase-ingest.md`
+- One-command interactive ops menu: `bash scripts/ops/run.sh` (or `npm run ops`)
 - Interactive scripts are in `scripts/ops/`:
-  - `scripts/ops/local.sh`
-  - `scripts/ops/supabase.sh`
+  - `scripts/ops/run.sh` (single menu for all ops actions)
+  - `scripts/ops/local.sh` (bootstrap local DB)
+  - `scripts/ops/ingest.sh` (unified local/Supabase ingest)
   - `scripts/ops/delete-local.sh`
   - `scripts/ops/delete-supabase.sh`
   - `scripts/ops/reset-db.sh`
@@ -72,6 +74,7 @@ Open `http://localhost:3000`, sign in with Google, then continue in `/admin`.
 - `src/` - app routes, API handlers, shared libraries
 - `prisma/` - schema and database model definitions
 - `scripts/` - operational and ingest tooling
+- `scripts/reviews/` - manual review JSON datasets for ingest
 - `scripts/ops/` - shell wrappers for local/Supabase data workflows
 - `docs/` - operational docs and runbooks
 - `report/` - academic report assets and generated LaTeX outputs

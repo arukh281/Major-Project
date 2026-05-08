@@ -1,0 +1,216 @@
+[
+  {
+    "externalReviewId": "btech-institute-001",
+    "rating": 5,
+    "comment": "Faculty in computer science explains core subjects clearly and gives practical lab assignments.",
+    "reviewerName": "Rahul P",
+    "createTime": "2026-01-06T08:30:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-002",
+    "rating": 4,
+    "comment": "Good campus and disciplined environment. Hostel wifi speed drops at night.",
+    "reviewerName": "Sneha K",
+    "createTime": "2026-01-08T10:45:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-003",
+    "rating": 5,
+    "comment": "Electronics labs are updated and assistants are helpful during project work.",
+    "reviewerName": "Aman D",
+    "createTime": "2026-01-10T13:00:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-004",
+    "rating": 3,
+    "comment": "Course content is good but timetable changes are frequent and confusing.",
+    "reviewerName": "Bhavna S",
+    "createTime": "2026-01-12T15:15:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-005",
+    "rating": 4,
+    "comment": "Placement training starts early and aptitude sessions are useful.",
+    "reviewerName": "Ritesh M",
+    "createTime": "2026-01-14T09:20:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-006",
+    "rating": 5,
+    "comment": "Mechanical workshop facilities are solid and safety rules are followed.",
+    "reviewerName": "Kunal R",
+    "createTime": "2026-01-16T11:35:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-007",
+    "rating": 2,
+    "comment": "Administrative queue is very slow during exam form submission week.",
+    "reviewerName": "Nisha T",
+    "createTime": "2026-01-18T14:50:00.000Z",
+    "replyText": "We are digitizing exam form verification to reduce waiting time next cycle.",
+    "replyUpdateTime": "2026-01-18T18:05:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-008",
+    "rating": 5,
+    "comment": "Coding club and hackathon culture make this institute stand out.",
+    "reviewerName": "Soham V",
+    "createTime": "2026-01-20T08:05:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-009",
+    "rating": 4,
+    "comment": "Library timing is convenient and reference books are mostly available.",
+    "reviewerName": "Mona Y",
+    "createTime": "2026-01-22T10:20:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-010",
+    "rating": 5,
+    "comment": "Final year project mentoring is strong and professors are approachable.",
+    "reviewerName": "Imran A",
+    "createTime": "2026-01-24T12:35:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-011",
+    "rating": 3,
+    "comment": "Syllabus delivery is decent but industrial visits should be more frequent.",
+    "reviewerName": "Karishma B",
+    "createTime": "2026-01-26T14:50:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-012",
+    "rating": 5,
+    "comment": "Excellent peer learning environment and active technical societies.",
+    "reviewerName": "Parth C",
+    "createTime": "2026-01-28T09:55:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-013",
+    "rating": 4,
+    "comment": "Civil engineering field work exposure is good for practical understanding.",
+    "reviewerName": "Anu G",
+    "createTime": "2026-01-30T12:10:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-014",
+    "rating": 5,
+    "comment": "Internship cell helped me get an internship in my second year.",
+    "reviewerName": "Rohan J",
+    "createTime": "2026-02-01T14:25:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-015",
+    "rating": 4,
+    "comment": "Campus is green and clean. Food court options could be expanded.",
+    "reviewerName": "Ira L",
+    "createTime": "2026-02-03T08:40:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-016",
+    "rating": 1,
+    "comment": "Exam results were delayed and communication from office was poor.",
+    "reviewerName": "Varun N",
+    "createTime": "2026-02-05T10:55:00.000Z",
+    "replyText": "We regret the delay. A revised publication schedule is now publicly posted.",
+    "replyUpdateTime": "2026-02-05T13:45:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-017",
+    "rating": 5,
+    "comment": "Teachers support startup ideas and give extra guidance outside class hours.",
+    "reviewerName": "Mitali Q",
+    "createTime": "2026-02-07T13:10:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-018",
+    "rating": 4,
+    "comment": "Good attendance tracking system and transparent internal marks.",
+    "reviewerName": "Samar W",
+    "createTime": "2026-02-09T15:25:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-019",
+    "rating": 5,
+    "comment": "Robotics lab equipment is modern and frequently used by students.",
+    "reviewerName": "Jiya H",
+    "createTime": "2026-02-11T09:30:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-020",
+    "rating": 3,
+    "comment": "Academics are fine but interdepartment coordination can improve.",
+    "reviewerName": "Abhay E",
+    "createTime": "2026-02-13T11:45:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-021",
+    "rating": 5,
+    "comment": "Strong alumni network and regular career talks from industry mentors.",
+    "reviewerName": "Nupur F",
+    "createTime": "2026-02-15T14:00:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-022",
+    "rating": 4,
+    "comment": "Hostel rooms are decent and wardens are responsive.",
+    "reviewerName": "Yash T",
+    "createTime": "2026-02-17T08:15:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-023",
+    "rating": 5,
+    "comment": "Good balance of theory and practical sessions across semesters.",
+    "reviewerName": "Pallavi U",
+    "createTime": "2026-02-19T10:30:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-024",
+    "rating": 2,
+    "comment": "Parking space for day scholars is limited during peak hours.",
+    "reviewerName": "Deep B",
+    "createTime": "2026-02-21T12:45:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-025",
+    "rating": 5,
+    "comment": "Excellent support for gate exam prep and higher studies guidance.",
+    "reviewerName": "Prerna X",
+    "createTime": "2026-02-23T15:00:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-026",
+    "rating": 4,
+    "comment": "Lab attendance policy is strict but helps maintain discipline.",
+    "reviewerName": "Tushar I",
+    "createTime": "2026-02-25T09:05:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-027",
+    "rating": 5,
+    "comment": "The annual tech fest is very well organized and student led.",
+    "reviewerName": "Kriti O",
+    "createTime": "2026-02-27T11:20:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-028",
+    "rating": 4,
+    "comment": "Reasonable fee structure compared to facilities offered.",
+    "reviewerName": "Dhruv Z",
+    "createTime": "2026-03-01T13:35:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-029",
+    "rating": 3,
+    "comment": "Campus transport runs on time but route coverage is limited.",
+    "reviewerName": "Ishita S",
+    "createTime": "2026-03-03T15:50:00.000Z"
+  },
+  {
+    "externalReviewId": "btech-institute-030",
+    "rating": 5,
+    "comment": "Overall a strong BTech institute for placements, labs, and mentorship.",
+    "reviewerName": "Raghav L",
+    "createTime": "2026-03-05T08:25:00.000Z"
+  }
+]

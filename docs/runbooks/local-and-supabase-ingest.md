@@ -10,7 +10,7 @@ Run from project root:
 
 ```bash
 createdb fynd
-cp scripts/manual-google-reviews.example.json scripts/manual-google-reviews.json
+cp scripts/reviews/manual-google-reviews.example.json scripts/reviews/manual-google-reviews.json
 npx prisma migrate deploy
 ```
 
@@ -20,9 +20,21 @@ Then start app and sign in once with your Gmail (creates owner row in local DB):
 npm run dev
 ```
 
+One-command ops menu (recommended):
+
+```bash
+bash scripts/ops/run.sh
+```
+
+or:
+
+```bash
+npm run ops
+```
+
 ---
 
-## 2) Ingest reviews into LOCAL database
+## 2) Bootstrap LOCAL database
 
 Run:
 
@@ -30,11 +42,37 @@ Run:
 bash scripts/ops/local.sh
 ```
 
+What it does:
+
+- verifies local PostgreSQL is running on `localhost:5432`
+- creates DB if missing (default `fynd`)
+- runs Prisma migrations
+- prints the local DB URLs
+
+Optional:
+
+```bash
+bash scripts/ops/local.sh --with-dev
+```
+
+This also starts `npm run dev` after DB setup.
+
+---
+
+## 3) Ingest reviews into LOCAL database
+
+Run:
+
+```bash
+bash scripts/ops/ingest.sh --target local
+```
+
 Prompts:
 
-- **Gmail** -> enter owner Gmail
+- **Gmail** -> choose from listed registered owner emails (or enter manually)
+- **Reviews file** -> press Enter (uses `scripts/reviews/manual-google-reviews.json`)
 - **Local DB URL** -> press Enter unless you need custom URL
-- **Reviews file** -> press Enter (uses `scripts/manual-google-reviews.json`)
+- To ingest a different dataset, enter a specific file path at the **Reviews file** prompt (for example: `scripts/reviews/manual-google-reviews-primary-school.json`).
 
 Important:
 
@@ -43,7 +81,7 @@ Important:
 
 ---
 
-## 3) Ingest reviews into SUPABASE database
+## 4) Ingest reviews into SUPABASE database
 
 Make sure `.env_supabase` has:
 
@@ -55,23 +93,28 @@ DIRECT_URL="postgresql://..."
 Then run:
 
 ```bash
-bash scripts/ops/supabase.sh
+bash scripts/ops/ingest.sh --target supabase
 ```
 
 Prompts:
 
-- **Gmail** -> owner Gmail that exists in Supabase DB
+- **Gmail** -> choose from listed registered owner emails (or enter manually)
 - **Reviews file** -> press Enter for default file
+- To ingest a different dataset, enter a specific file path at the **Reviews file** prompt (for example: `scripts/reviews/manual-google-reviews-movie-theater.json`).
 
 If Gmail is not present in Supabase DB:
 
 - temporarily run app against Supabase
 - sign in once
-- run `bash scripts/ops/supabase.sh` again
+- run `bash scripts/ops/ingest.sh --target supabase` again
 
----
+Optional interactive target picker:
 
-## 4) Reset ONE user (script)
+```bash
+bash scripts/ops/ingest.sh
+```
+
+## 5) Reset ONE user (script)
 
 ### Local DB reset
 
@@ -117,21 +160,21 @@ You will see counts in output:
 
 ---
 
-## 5) If something fails
+## 6) If something fails
 
 - `public.User does not exist` -> run `npx prisma migrate deploy`
 - `Owner not found` -> sign in once in that same DB
 - `Reviews file not found` -> run:
 
 ```bash
-cp scripts/manual-google-reviews.example.json scripts/manual-google-reviews.json
+cp scripts/reviews/manual-google-reviews.example.json scripts/reviews/manual-google-reviews.json
 ```
 
 - Reset showed `0` deletions -> that email has no rows in that selected DB, or data was already deleted
 
 ---
 
-## 6) Reset WHOLE database (all users, all data)
+## 7) Reset WHOLE database (all users, all data)
 
 Run:
 

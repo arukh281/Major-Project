@@ -9,8 +9,9 @@
     "lint": "next lint",
     "seed:google-mock": "node scripts/seed-google-mock.mjs",
     "ingest:manual-google": "node scripts/ingest-manual-google-reviews.mjs",
-    "ops:local-ingest": "bash scripts/ops/local.sh",
-    "ops:supabase-ingest": "bash scripts/ops/supabase.sh",
+    "ops": "bash scripts/ops/run.sh",
+    "ops:local": "bash scripts/ops/local.sh",
+    "ops:ingest": "bash scripts/ops/ingest.sh",
     "ops:reset-local-owner": "bash scripts/ops/delete-local.sh",
     "ops:reset-supabase-owner": "bash scripts/ops/delete-supabase.sh",
     "ops:reset-db": "bash scripts/ops/reset-db.sh"

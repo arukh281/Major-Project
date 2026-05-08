@@ -1,0 +1,216 @@
+[
+  {
+    "externalReviewId": "movie-theater-001",
+    "rating": 5,
+    "comment": "Comfortable recliner seats and crisp sound quality. Great weekend movie experience.",
+    "reviewerName": "Ananya P",
+    "createTime": "2026-01-03T08:45:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-002",
+    "rating": 4,
+    "comment": "Screens are clean and bright. Snack prices are a bit high.",
+    "reviewerName": "Rohit K",
+    "createTime": "2026-01-05T10:00:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-003",
+    "rating": 5,
+    "comment": "Online booking and QR entry are smooth with minimal waiting.",
+    "reviewerName": "Meera D",
+    "createTime": "2026-01-07T12:15:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-004",
+    "rating": 3,
+    "comment": "Movie started ten minutes late, but projection quality was good.",
+    "reviewerName": "Vikram S",
+    "createTime": "2026-01-09T14:30:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-005",
+    "rating": 5,
+    "comment": "Best theater nearby for family shows and kids friendly staff.",
+    "reviewerName": "Pooja M",
+    "createTime": "2026-01-11T16:45:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-006",
+    "rating": 4,
+    "comment": "Good legroom and clean washrooms. Parking exits get crowded after night shows.",
+    "reviewerName": "Karan B",
+    "createTime": "2026-01-13T09:20:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-007",
+    "rating": 2,
+    "comment": "Air conditioning was too low and seats felt warm in the back row.",
+    "reviewerName": "Sana T",
+    "createTime": "2026-01-15T11:35:00.000Z",
+    "replyText": "Sorry for the discomfort. HVAC calibration for Screen 3 has been completed.",
+    "replyUpdateTime": "2026-01-15T15:25:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-008",
+    "rating": 5,
+    "comment": "Dolby audio was excellent and action scenes sounded immersive.",
+    "reviewerName": "Aman R",
+    "createTime": "2026-01-17T13:50:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-009",
+    "rating": 4,
+    "comment": "Friendly ushers helped us find seats quickly.",
+    "reviewerName": "Farah V",
+    "createTime": "2026-01-19T08:05:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-010",
+    "rating": 5,
+    "comment": "Popcorn was fresh and combo offers were worth it.",
+    "reviewerName": "Deepak Y",
+    "createTime": "2026-01-21T10:20:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-011",
+    "rating": 4,
+    "comment": "Restrooms were clean even after a full show.",
+    "reviewerName": "Leena A",
+    "createTime": "2026-01-23T12:35:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-012",
+    "rating": 5,
+    "comment": "IMAX screen quality is impressive and definitely worth the ticket price.",
+    "reviewerName": "Arjun C",
+    "createTime": "2026-01-25T14:50:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-013",
+    "rating": 3,
+    "comment": "Good show experience but ads before movie were too long.",
+    "reviewerName": "Mitali G",
+    "createTime": "2026-01-27T09:15:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-014",
+    "rating": 5,
+    "comment": "Late night show felt safe due to visible security staff.",
+    "reviewerName": "Sameer J",
+    "createTime": "2026-01-29T11:30:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-015",
+    "rating": 4,
+    "comment": "Ticket counter was efficient for walk in bookings.",
+    "reviewerName": "Trisha L",
+    "createTime": "2026-01-31T13:45:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-016",
+    "rating": 1,
+    "comment": "My booked seats were occupied and it took too long to resolve.",
+    "reviewerName": "Vivek N",
+    "createTime": "2026-02-02T15:00:00.000Z",
+    "replyText": "We sincerely apologize. Staff retraining was completed on seat dispute handling.",
+    "replyUpdateTime": "2026-02-02T18:10:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-017",
+    "rating": 5,
+    "comment": "Great theater for animated movies with kids, clean and organized.",
+    "reviewerName": "Rina Q",
+    "createTime": "2026-02-04T08:25:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-018",
+    "rating": 4,
+    "comment": "Seats are comfortable for long films. Armrests could be a bit wider.",
+    "reviewerName": "Yash W",
+    "createTime": "2026-02-06T10:40:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-019",
+    "rating": 5,
+    "comment": "Picture clarity remained strong even in darker scenes.",
+    "reviewerName": "Komal H",
+    "createTime": "2026-02-08T12:55:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-020",
+    "rating": 3,
+    "comment": "Decent theater overall but online seat map was inaccurate once.",
+    "reviewerName": "Abhi E",
+    "createTime": "2026-02-10T15:10:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-021",
+    "rating": 5,
+    "comment": "Fast entry process and zero confusion at the gate.",
+    "reviewerName": "Nora F",
+    "createTime": "2026-02-12T09:35:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-022",
+    "rating": 4,
+    "comment": "Good weekday discounts and easy cancellation window.",
+    "reviewerName": "Raghav T",
+    "createTime": "2026-02-14T11:50:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-023",
+    "rating": 5,
+    "comment": "Sound insulation between screens is good, no noise leakage.",
+    "reviewerName": "Anu U",
+    "createTime": "2026-02-16T14:05:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-024",
+    "rating": 2,
+    "comment": "Snack counter ran out of bottled water in interval.",
+    "reviewerName": "Harsh B",
+    "createTime": "2026-02-18T08:20:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-025",
+    "rating": 5,
+    "comment": "Premium lounge seats are very comfortable and worth trying.",
+    "reviewerName": "Ira X",
+    "createTime": "2026-02-20T10:35:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-026",
+    "rating": 4,
+    "comment": "Clean aisles and attentive housekeeping between shows.",
+    "reviewerName": "Dev I",
+    "createTime": "2026-02-22T12:50:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-027",
+    "rating": 5,
+    "comment": "Good subtitle visibility from middle rows.",
+    "reviewerName": "Kriti O",
+    "createTime": "2026-02-24T15:05:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-028",
+    "rating": 4,
+    "comment": "Convenient location in mall and clear sign boards.",
+    "reviewerName": "Tushar Z",
+    "createTime": "2026-02-26T09:30:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-029",
+    "rating": 3,
+    "comment": "Good experience but ticket prices jump a lot on opening weekends.",
+    "reviewerName": "Ishita S",
+    "createTime": "2026-02-28T11:45:00.000Z"
+  },
+  {
+    "externalReviewId": "movie-theater-030",
+    "rating": 5,
+    "comment": "Overall a reliable movie theater with strong audio visual quality.",
+    "reviewerName": "Parth L",
+    "createTime": "2026-03-02T14:00:00.000Z"
+  }
+]

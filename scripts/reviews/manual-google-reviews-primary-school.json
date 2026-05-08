@@ -1,0 +1,220 @@
+[
+  {
+    "externalReviewId": "primary-school-001",
+    "rating": 5,
+    "comment": "My son settled in within a week. Class teacher sends clear weekly notes and homework is manageable.",
+    "reviewerName": "Neha P",
+    "createTime": "2026-01-05T08:10:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-002",
+    "rating": 4,
+    "comment": "Strong reading program and a nice library corner. Morning drop-off traffic can be tight.",
+    "reviewerName": "Arjun K",
+    "createTime": "2026-01-07T09:25:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-003",
+    "rating": 5,
+    "comment": "Teachers are patient with first graders and encourage speaking confidence in class.",
+    "reviewerName": "Rina D",
+    "createTime": "2026-01-09T11:40:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-004",
+    "rating": 3,
+    "comment": "Good academics but the school app notifications are sometimes delayed.",
+    "reviewerName": "Vikram S",
+    "createTime": "2026-01-11T13:05:00.000Z",
+    "replyText": "Thanks for sharing this. We are updating the app notification service this term.",
+    "replyUpdateTime": "2026-01-11T16:20:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-005",
+    "rating": 5,
+    "comment": "The math lab activities are fun and practical. My daughter enjoys going to school every day.",
+    "reviewerName": "Priyanka M",
+    "createTime": "2026-01-13T10:30:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-006",
+    "rating": 4,
+    "comment": "Clean classrooms and supportive staff. Would like one more parent teacher meeting per term.",
+    "reviewerName": "Karan B",
+    "createTime": "2026-01-15T12:15:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-007",
+    "rating": 5,
+    "comment": "Great balance of studies, sports, and art. Assembly sessions are very well organized.",
+    "reviewerName": "Meera T",
+    "createTime": "2026-01-17T07:55:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-008",
+    "rating": 2,
+    "comment": "The bus arrived late multiple times in one month. Communication from transport team needs improvement.",
+    "reviewerName": "Sanjay L",
+    "createTime": "2026-01-19T14:10:00.000Z",
+    "replyText": "We are sorry about the delays. Route timings were revised and tracking is now enabled.",
+    "replyUpdateTime": "2026-01-19T17:45:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-009",
+    "rating": 4,
+    "comment": "Teacher feedback is specific and useful. School canteen menu has healthy options.",
+    "reviewerName": "Asha R",
+    "createTime": "2026-01-21T09:05:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-010",
+    "rating": 5,
+    "comment": "Excellent phonics support for early learners. My child now reads bedtime stories confidently.",
+    "reviewerName": "Rohit J",
+    "createTime": "2026-01-23T15:20:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-011",
+    "rating": 4,
+    "comment": "Good playground and safe campus. Security at gate is strict and reassuring.",
+    "reviewerName": "Divya N",
+    "createTime": "2026-01-25T08:45:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-012",
+    "rating": 5,
+    "comment": "My child needed extra writing support and the remedial sessions helped a lot.",
+    "reviewerName": "Pooja C",
+    "createTime": "2026-01-27T11:10:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-013",
+    "rating": 3,
+    "comment": "Teachers are good but dismissal process is slow during rainy days.",
+    "reviewerName": "Ankit V",
+    "createTime": "2026-01-29T13:35:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-014",
+    "rating": 5,
+    "comment": "School celebrates festivals with educational context. Kids learn values and cultural respect.",
+    "reviewerName": "Farah I",
+    "createTime": "2026-01-31T10:00:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-015",
+    "rating": 4,
+    "comment": "Science corner projects are creative. Wish there was a little more shade in the waiting area.",
+    "reviewerName": "Harsh G",
+    "createTime": "2026-02-02T12:25:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-016",
+    "rating": 5,
+    "comment": "Teachers respond quickly on the parent portal and concerns are handled politely.",
+    "reviewerName": "Lata W",
+    "createTime": "2026-02-04T14:50:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-017",
+    "rating": 1,
+    "comment": "Fees changed mid term and explanation was not clear. Very disappointing experience.",
+    "reviewerName": "Nitin A",
+    "createTime": "2026-02-06T09:15:00.000Z",
+    "replyText": "We regret the confusion and have now sent a detailed fee circular to all parents.",
+    "replyUpdateTime": "2026-02-06T13:10:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-018",
+    "rating": 4,
+    "comment": "Nice music and dance periods. Annual day practice was managed without affecting regular classes.",
+    "reviewerName": "Seema O",
+    "createTime": "2026-02-08T11:30:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-019",
+    "rating": 5,
+    "comment": "The school counselor is approachable and helped my child with exam anxiety.",
+    "reviewerName": "Gaurav U",
+    "createTime": "2026-02-10T16:05:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-020",
+    "rating": 4,
+    "comment": "Reasonable class size and active participation from teachers in each period.",
+    "reviewerName": "Mitali Z",
+    "createTime": "2026-02-12T08:20:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-021",
+    "rating": 5,
+    "comment": "Excellent handwriting improvement plan. We saw progress in less than two months.",
+    "reviewerName": "Kabir H",
+    "createTime": "2026-02-14T10:45:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-022",
+    "rating": 3,
+    "comment": "Curriculum is fine but classroom fans in Block B need maintenance.",
+    "reviewerName": "Nora E",
+    "createTime": "2026-02-16T13:00:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-023",
+    "rating": 5,
+    "comment": "Sports day was fantastic and every child got a chance to participate.",
+    "reviewerName": "Ishaan F",
+    "createTime": "2026-02-18T15:25:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-024",
+    "rating": 4,
+    "comment": "Homework policy is balanced and not stressful for younger children.",
+    "reviewerName": "Komal Y",
+    "createTime": "2026-02-20T09:40:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-025",
+    "rating": 5,
+    "comment": "Very caring class teacher who notices each child and motivates them individually.",
+    "reviewerName": "Deepak Q",
+    "createTime": "2026-02-22T11:55:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-026",
+    "rating": 4,
+    "comment": "School ERP for attendance works well. Lunch break supervision is good.",
+    "reviewerName": "Namita B",
+    "createTime": "2026-02-24T14:20:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-027",
+    "rating": 2,
+    "comment": "Admission team promised call backs that never happened. Initial communication felt unprofessional.",
+    "reviewerName": "Rakesh M",
+    "createTime": "2026-02-26T08:35:00.000Z",
+    "replyText": "We apologize for the missed follow up. The admissions desk has a new response SLA in place.",
+    "replyUpdateTime": "2026-02-26T12:30:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-028",
+    "rating": 5,
+    "comment": "Library reading challenge motivated my child to read more books at home.",
+    "reviewerName": "Trisha S",
+    "createTime": "2026-02-28T10:50:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-029",
+    "rating": 4,
+    "comment": "Good school overall with polite support staff and neat classrooms.",
+    "reviewerName": "Yogesh T",
+    "createTime": "2026-03-02T13:15:00.000Z"
+  },
+  {
+    "externalReviewId": "primary-school-030",
+    "rating": 5,
+    "comment": "Best primary school in our area for foundational learning and child friendly teachers.",
+    "reviewerName": "Aditi L",
+    "createTime": "2026-03-04T15:40:00.000Z"
+  }
+]
