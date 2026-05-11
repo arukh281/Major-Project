@@ -3,23 +3,24 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
+source "$ROOT_DIR/scripts/ops/ui.sh"
 
-echo "=== Whole database reset ==="
-echo "This will delete ALL app data (users, business, reviews, google links)."
+ui_title "Whole database reset"
+ui_warn "This will delete ALL app data (users, business, reviews, google links)."
 echo
-echo "Select target:"
-echo "  1) local"
-echo "  2) supabase (.env_supabase)"
+ui_section "Select target"
+ui_menu_item "1" "local"
+ui_menu_item "2" "supabase (.env_supabase)"
 read -r -p "Choose 1 or 2: " TARGET
 
 if [[ "$TARGET" != "1" && "$TARGET" != "2" ]]; then
-  echo "Invalid choice."
+  ui_error "Invalid choice."
   exit 1
 fi
 
 read -r -p "Type RESET to continue: " CONFIRM
 if [[ "$CONFIRM" != "RESET" ]]; then
-  echo "Cancelled."
+  ui_info "Cancelled."
   exit 1
 fi
 
@@ -39,7 +40,7 @@ if [[ "$TARGET" == "1" ]]; then
   node scripts/reset-whole-db.mjs --env-file "$TMP_ENV_FILE"
 else
   if [[ ! -f ".env_supabase" ]]; then
-    echo "Missing .env_supabase in project root."
+    ui_error "Missing .env_supabase in project root."
     exit 1
   fi
   node scripts/reset-whole-db.mjs --env-file ".env_supabase"

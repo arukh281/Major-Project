@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
+source "$ROOT_DIR/scripts/ops/ui.sh"
 
 ENV_FILE=".env_supabase"
 LOCAL_DB_USER="${USER:-postgres}"
@@ -25,7 +26,7 @@ prompt_owner_email() {
   local owner_options=()
   local owner_line=""
 
-  echo "Fetching registered owner emails from selected DB..."
+  ui_section "Fetching registered owner emails from selected DB"
   while IFS= read -r owner_line; do
     if [[ -n "$owner_line" ]]; then
       owner_options+=("$owner_line")
@@ -33,11 +34,11 @@ prompt_owner_email() {
   done < <(node scripts/list-owner-emails.mjs --use-current-env)
 
   if [[ "${#owner_options[@]}" -gt 0 ]]; then
-    echo "Choose owner email:"
+    ui_section "Choose owner email"
     for i in "${!owner_options[@]}"; do
-      printf "  %s) %s\n" "$((i + 1))" "${owner_options[$i]}"
+      ui_menu_item "$((i + 1))" "${owner_options[$i]}"
     done
-    printf "  %s) Enter manually\n" "$(( ${#owner_options[@]} + 1 ))"
+    ui_menu_item "$(( ${#owner_options[@]} + 1 ))" "Enter manually"
 
     read -r -p "Choose [1]: " OWNER_CHOICE
     local default_choice=1
@@ -56,10 +57,10 @@ prompt_owner_email() {
       return
     fi
 
-    echo "Invalid owner choice: ${OWNER_CHOICE}"
+    ui_error "Invalid owner choice: ${OWNER_CHOICE}"
     exit 1
   else
-    echo "No registered owner emails found in selected DB."
+    ui_warn "No registered owner emails found in selected DB."
     read -r -p "Enter owner Gmail (example: you@gmail.com): " OWNER_EMAIL
   fi
 }
@@ -83,7 +84,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     -t|--target)
       if [[ -z "${2:-}" ]]; then
-        echo "Missing value for $1"
+        ui_error "Missing value for $1"
         usage
         exit 1
       fi
@@ -92,7 +93,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     -e|--owner-email)
       if [[ -z "${2:-}" ]]; then
-        echo "Missing value for $1"
+        ui_error "Missing value for $1"
         usage
         exit 1
       fi
@@ -101,7 +102,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     -r|--reviews-file)
       if [[ -z "${2:-}" ]]; then
-        echo "Missing value for $1"
+        ui_error "Missing value for $1"
         usage
         exit 1
       fi
@@ -110,7 +111,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     -d|--local-db-url)
       if [[ -z "${2:-}" ]]; then
-        echo "Missing value for $1"
+        ui_error "Missing value for $1"
         usage
         exit 1
       fi
@@ -122,7 +123,7 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     *)
-      echo "Unknown option: $1"
+      ui_error "Unknown option: $1"
       usage
       exit 1
       ;;
@@ -134,34 +135,34 @@ if [[ -n "$TARGET" ]]; then
 fi
 
 if [[ -z "$TARGET" ]]; then
-  echo "=== Manual review ingest ==="
-  echo "Choose target:"
-  echo "  1) local"
-  echo "  2) supabase"
+  ui_title "Manual review ingest"
+  ui_section "Choose target"
+  ui_menu_item "1" "local"
+  ui_menu_item "2" "supabase"
   read -r -p "Target [1]: " TARGET_CHOICE
   case "${TARGET_CHOICE:-1}" in
     1|local|LOCAL) TARGET="local" ;;
     2|supabase|SUPABASE) TARGET="supabase" ;;
     *)
-      echo "Invalid target choice: ${TARGET_CHOICE}"
-      echo "Expected 1/local or 2/supabase."
+      ui_error "Invalid target choice: ${TARGET_CHOICE}"
+      ui_info "Expected 1/local or 2/supabase."
       exit 1
       ;;
   esac
 fi
 
 if [[ "$TARGET" != "local" && "$TARGET" != "supabase" ]]; then
-  echo "Invalid target: $TARGET"
-  echo "Expected local or supabase."
+  ui_error "Invalid target: $TARGET"
+  ui_info "Expected local or supabase."
   exit 1
 fi
 
 if [[ -z "$REVIEWS_FILE" ]]; then
-  echo "Which reviews file do you want to ingest?"
+  ui_section "Which reviews file do you want to ingest?"
   for i in "${!REVIEW_OPTIONS[@]}"; do
-    printf "  %s) %s\n" "$((i + 1))" "${REVIEW_OPTIONS[$i]}"
+    ui_menu_item "$((i + 1))" "${REVIEW_OPTIONS[$i]}"
   done
-  echo "  6) custom path"
+  ui_menu_item "6" "custom path"
   read -r -p "Choose [1]: " REVIEWS_CHOICE
 
   case "${REVIEWS_CHOICE:-1}" in
@@ -175,16 +176,16 @@ if [[ -z "$REVIEWS_FILE" ]]; then
       REVIEWS_FILE="${INPUT_REVIEWS_FILE:-$DEFAULT_REVIEWS_FILE}"
       ;;
     *)
-      echo "Invalid reviews file choice: ${REVIEWS_CHOICE}"
+      ui_error "Invalid reviews file choice: ${REVIEWS_CHOICE}"
       exit 1
       ;;
   esac
 fi
 
 if [[ ! -f "$REVIEWS_FILE" ]]; then
-  echo "Reviews file not found: $REVIEWS_FILE"
-  echo "Create it from example:"
-  echo "  cp scripts/reviews/manual-google-reviews.example.json scripts/reviews/manual-google-reviews.json"
+  ui_error "Reviews file not found: $REVIEWS_FILE"
+  ui_info "Create it from example:"
+  ui_info "cp scripts/reviews/manual-google-reviews.example.json scripts/reviews/manual-google-reviews.json"
   exit 1
 fi
 
@@ -201,9 +202,9 @@ if [[ "$TARGET" == "local" ]]; then
   export DATABASE_URL="$LOCAL_DB_URL"
   export DIRECT_URL="$LOCAL_DB_URL"
 
-  echo "Using local DB:"
-  echo "  DATABASE_URL=$DATABASE_URL"
-  echo "  DIRECT_URL=$DIRECT_URL"
+  ui_section "Using local DB"
+  ui_info "DATABASE_URL=$DATABASE_URL"
+  ui_info "DIRECT_URL=$DIRECT_URL"
   echo
 
   INGEST_ENV_FILE="$(mktemp)"
@@ -215,7 +216,7 @@ if [[ "$TARGET" == "local" ]]; then
 else
   TARGET_LABEL="Supabase DB"
   if [[ ! -f "$ENV_FILE" ]]; then
-    echo "Missing $ENV_FILE in project root."
+    ui_error "Missing $ENV_FILE in project root."
     exit 1
   fi
 
@@ -224,12 +225,12 @@ else
   set +a
 
   if [[ -z "${DATABASE_URL:-}" || -z "${DIRECT_URL:-}" ]]; then
-    echo "DATABASE_URL and DIRECT_URL must be set in $ENV_FILE"
+    ui_error "DATABASE_URL and DIRECT_URL must be set in $ENV_FILE"
     exit 1
   fi
 
   INGEST_ENV_FILE="$ENV_FILE"
-  echo "Loaded Supabase env from $ENV_FILE"
+  ui_success "Loaded Supabase env from $ENV_FILE"
   echo
 fi
 
@@ -238,32 +239,32 @@ if [[ -z "$OWNER_EMAIL" ]]; then
 fi
 
 if [[ -z "${OWNER_EMAIL}" ]]; then
-  echo "Email is required."
+  ui_error "Email is required."
   exit 1
 fi
 
 if node scripts/check-owner-email.mjs --use-current-env --email "$OWNER_EMAIL"; then
   if [[ "$TARGET" == "local" ]]; then
-    echo "Owner exists in local DB."
+    ui_success "Owner exists in local DB."
   else
-    echo "Owner exists in Supabase DB."
+    ui_success "Owner exists in Supabase DB."
   fi
   echo
 else
   STATUS=$?
   if [[ "$STATUS" -eq 2 ]]; then
     if [[ "$TARGET" == "local" ]]; then
-      echo "That Gmail is not present in local DB."
-      echo "Sign in once in your app using local DB, then rerun scripts/ops/ingest.sh --target local."
+      ui_warn "That Gmail is not present in local DB."
+      ui_info "Sign in once in your app using local DB, then rerun scripts/ops/ingest.sh --target local."
     else
-      echo "That Gmail is not present in Supabase DB."
-      echo "Sign in once against Supabase DB, then rerun scripts/ops/ingest.sh --target supabase."
+      ui_warn "That Gmail is not present in Supabase DB."
+      ui_info "Sign in once against Supabase DB, then rerun scripts/ops/ingest.sh --target supabase."
     fi
   fi
   exit "$STATUS"
 fi
 
-echo "Ingesting reviews into ${TARGET_LABEL}..."
+ui_section "Ingesting reviews into ${TARGET_LABEL}"
 npm run ingest:manual-google -- \
   --env-file "$INGEST_ENV_FILE" \
   --reviews "$REVIEWS_FILE" \
@@ -271,7 +272,7 @@ npm run ingest:manual-google -- \
 
 echo
 if [[ "$TARGET" == "local" ]]; then
-  echo "Done. Local ingest complete for: $OWNER_EMAIL"
+  ui_success "Done. Local ingest complete for: $OWNER_EMAIL"
 else
-  echo "Done. Manual reviews pushed to Supabase for: $OWNER_EMAIL"
+  ui_success "Done. Manual reviews pushed to Supabase for: $OWNER_EMAIL"
 fi

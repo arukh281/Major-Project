@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
+source "$ROOT_DIR/scripts/ops/ui.sh"
 
 LOCAL_DB_USER="${USER:-postgres}"
 DEFAULT_LOCAL_URL="postgresql://${LOCAL_DB_USER}@localhost:5432/fynd?schema=public"
@@ -15,26 +16,26 @@ for arg in "$@"; do
       RUN_DEV=true
       ;;
     *)
-      echo "Unknown option: $arg"
-      echo "Usage: bash scripts/ops/local.sh [--with-dev]"
+      ui_error "Unknown option: $arg"
+      ui_info "Usage: bash scripts/ops/local.sh [--with-dev]"
       exit 1
       ;;
   esac
 done
 
 if ! command -v psql >/dev/null 2>&1; then
-  echo "PostgreSQL client (psql) is not installed."
-  echo "Install PostgreSQL first, then rerun this script."
+  ui_error "PostgreSQL client (psql) is not installed."
+  ui_info "Install PostgreSQL first, then rerun this script."
   exit 1
 fi
 
 if ! pg_isready -h localhost -p 5432 >/dev/null 2>&1; then
-  echo "Local PostgreSQL is not running on localhost:5432."
-  echo "Start PostgreSQL, then rerun this script."
+  ui_error "Local PostgreSQL is not running on localhost:5432."
+  ui_info "Start PostgreSQL, then rerun this script."
   exit 1
 fi
 
-echo "=== Local PostgreSQL bootstrap ==="
+ui_title "Local PostgreSQL bootstrap"
 read -r -p "Local DB URL [${DEFAULT_LOCAL_URL}]: " INPUT_URL
 LOCAL_DB_URL="${INPUT_URL:-$DEFAULT_LOCAL_URL}"
 
@@ -50,38 +51,38 @@ if psql -h localhost -U "$LOCAL_DB_USER" -d postgres -tAc \
     read -r EXISTS_FLAG
     [[ "$EXISTS_FLAG" == "1" ]]
   }; then
-  echo "Database '${DB_NAME}' already exists."
+  ui_info "Database '${DB_NAME}' already exists."
 else
-  echo "Creating database '${DB_NAME}'..."
+  ui_section "Creating database '${DB_NAME}'"
   createdb "$DB_NAME"
 fi
 
 export DATABASE_URL="$LOCAL_DB_URL"
 export DIRECT_URL="$LOCAL_DB_URL"
 
-echo "Applying Prisma migrations..."
+ui_section "Applying Prisma migrations"
 npx prisma migrate deploy
 
 echo
-echo "Local database is ready."
-echo "  DATABASE_URL=$DATABASE_URL"
-echo "  DIRECT_URL=$DIRECT_URL"
+ui_success "Local database is ready."
+ui_info "DATABASE_URL=$DATABASE_URL"
+ui_info "DIRECT_URL=$DIRECT_URL"
 
 if [[ "$RUN_DEV" == true ]]; then
   echo
-  echo "Starting app with npm run dev..."
+  ui_section "Starting app with npm run dev"
   npm run dev
 else
-  echo "Run ingest with: bash scripts/ops/ingest.sh --target local"
+  ui_info "Run ingest with: bash scripts/ops/ingest.sh --target local"
   echo
   read -r -p "Do you want to start the server now? [y/N]: " START_DEV
   case "${START_DEV:-N}" in
     y|Y|yes|YES)
-      echo "Starting app with npm run dev..."
+      ui_section "Starting app with npm run dev"
       npm run dev
       ;;
     *)
-      echo "Start app later with: npm run dev"
+      ui_info "Start app later with: npm run dev"
       ;;
   esac
 fi

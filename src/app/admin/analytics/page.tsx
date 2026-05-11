@@ -313,7 +313,7 @@ function AnalyticsPageContent() {
   );
 
   const [data, setData] = useState<AnalyticsPayload | null>(null);
-  const [range, setRange] = useState<"week" | "month" | "year" | "all">("month");
+  const [range, setRange] = useState<"week" | "month" | "year" | "all">("all");
   const [bucketBandFilter, setBucketBandFilter] = useState<"all" | Band>("all");
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");

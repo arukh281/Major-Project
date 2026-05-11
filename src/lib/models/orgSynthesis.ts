@@ -123,17 +123,77 @@ export const emptyGrounding: OrgSynthesisGrounding = {
   worstLocations: [],
 };
 
+function collectFencedBlocks(text: string): string[] {
+  const blocks: string[] = [];
+  const re = /```(?:json)?\s*([\s\S]*?)```/gi;
+  let match: RegExpExecArray | null = re.exec(text);
+  while (match) {
+    blocks.push(match[1].trim());
+    match = re.exec(text);
+  }
+  return blocks;
+}
+
+function extractBalancedObjectCandidate(text: string): string | null {
+  let start = -1;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (ch === "\\") {
+        escaped = true;
+      } else if (ch === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+
+    if (ch === "{") {
+      if (depth === 0) start = i;
+      depth += 1;
+      continue;
+    }
+
+    if (ch === "}" && depth > 0) {
+      depth -= 1;
+      if (depth === 0 && start !== -1) {
+        return text.slice(start, i + 1);
+      }
+    }
+  }
+
+  return null;
+}
+
 function extractJsonObject(raw: string): unknown {
   const trimmed = raw.trim();
-  const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  let candidate = fence ? fence[1].trim() : trimmed;
-  const first = candidate.indexOf("{");
-  const last = candidate.lastIndexOf("}");
-  if (first === -1 || last <= first) {
-    throw new SyntaxError("No JSON object in model output");
+  const candidates: string[] = [];
+
+  // Prefer fenced blocks first if present.
+  candidates.push(...collectFencedBlocks(trimmed));
+  candidates.push(trimmed);
+
+  for (const candidate of candidates) {
+    const balanced = extractBalancedObjectCandidate(candidate) ?? candidate;
+    try {
+      return JSON.parse(balanced) as unknown;
+    } catch {
+      // Fall through and try remaining candidates.
+    }
   }
-  candidate = candidate.slice(first, last + 1);
-  return JSON.parse(candidate) as unknown;
+
+  throw new SyntaxError("No valid JSON object in model output");
 }
 
 export function parseOrgSynthesisFromLlm(raw: string): OrgSynthesis {

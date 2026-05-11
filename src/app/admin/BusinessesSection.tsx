@@ -52,21 +52,24 @@ function ShareBlock({
   useEffect(() => {
     if (!url) return;
     let cancelled = false;
-    setQrLoading(true);
-    setQr(null);
-    QRCode.toDataURL(url, { margin: 1, width: 240, errorCorrectionLevel: "M" })
-      .then((data) => {
-        if (!cancelled) {
-          setQr(data);
-          setQrLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setQr(null);
-          setQrLoading(false);
-        }
-      });
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setQrLoading(true);
+      setQr(null);
+      QRCode.toDataURL(url, { margin: 1, width: 240, errorCorrectionLevel: "M" })
+        .then((data) => {
+          if (!cancelled) {
+            setQr(data);
+            setQrLoading(false);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setQr(null);
+            setQrLoading(false);
+          }
+        });
+    });
     return () => {
       cancelled = true;
     };
@@ -172,6 +175,8 @@ export function BusinessesSection({
   const [createLogoFile, setCreateLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const closeCreateModalRef = useRef<() => void>(() => {});
+  const closeEditModalRef = useRef<() => void>(() => {});
   const [editOpen, setEditOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editLogo, setEditLogo] = useState("");
@@ -244,8 +249,8 @@ export function BusinessesSection({
     if (!createOpen && !editOpen) return;
     function onKey(e: KeyboardEvent) {
       if (e.key !== "Escape") return;
-      if (createOpen) closeCreateModal();
-      else if (editOpen) closeEditModal();
+      if (createOpen) closeCreateModalRef.current();
+      else if (editOpen) closeEditModalRef.current();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -335,6 +340,9 @@ export function BusinessesSection({
     setEditOpen(false);
     setBucketSuggestNote(null);
   }
+
+  closeCreateModalRef.current = closeCreateModal;
+  closeEditModalRef.current = closeEditModal;
 
   function toggleCreateBucket(id: string) {
     setCreateBucketIds((prev) => {

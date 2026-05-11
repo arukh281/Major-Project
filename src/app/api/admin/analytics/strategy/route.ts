@@ -183,13 +183,46 @@ Respond with ONLY a single JSON object and no other text (no markdown fences, no
 Example (structure only):
 {"patterns":["…"],"nextSteps":[{"keyword":"…","detail":"…"}]}`;
 
-    const raw = await callLlama(prompt, { temperature: 0.35 });
+    const attempts = [
+      {
+        temperature: 0.35,
+        promptSuffix: "",
+        maxTokens: 650,
+      },
+      {
+        temperature: 0,
+        promptSuffix:
+          "\n\nCRITICAL: Return exactly one valid JSON object with double-quoted keys/strings and no surrounding text.",
+        maxTokens: 650,
+      },
+    ] as const;
 
-    let synthesis;
-    try {
-      synthesis = parseOrgSynthesisFromLlm(raw);
-    } catch (e) {
-      console.error("Org synthesis validation failed", e, raw.slice(0, 500));
+    let synthesis: ReturnType<typeof parseOrgSynthesisFromLlm> | null = null;
+    let lastRaw = "";
+
+    for (const [index, attempt] of attempts.entries()) {
+      const raw = await callLlama(`${prompt}${attempt.promptSuffix}`, {
+        temperature: attempt.temperature,
+        maxTokens: attempt.maxTokens,
+      });
+      lastRaw = raw;
+      try {
+        synthesis = parseOrgSynthesisFromLlm(raw);
+        break;
+      } catch (e) {
+        console.error(
+          `Org synthesis validation failed (attempt ${index + 1}/${attempts.length})`,
+          e,
+          raw.slice(0, 500)
+        );
+      }
+    }
+
+    if (!synthesis) {
+      console.error(
+        "Org synthesis failed after all attempts; last raw (truncated):",
+        lastRaw.slice(0, 500)
+      );
       return NextResponse.json(
         {
           error:

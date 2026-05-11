@@ -38,7 +38,12 @@ Use neutral, professional language only. Do not quote or repeat profanity, slurs
 
 export async function callLlama(
   prompt: string,
-  options?: { system?: string; temperature?: number; model?: string }
+  options?: {
+    system?: string;
+    temperature?: number;
+    model?: string;
+    maxTokens?: number;
+  }
 ): Promise<string> {
   const messages: { role: ChatRole; content: string }[] = [];
   if (options?.system) {
@@ -56,6 +61,7 @@ export async function callLlama(
       model: resolveOpenRouterModel(options?.model),
       messages,
       temperature: options?.temperature ?? 0.7,
+      max_tokens: options?.maxTokens,
     }),
   });
 

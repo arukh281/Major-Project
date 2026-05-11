@@ -8,7 +8,11 @@
  * (e.g. fabric → quality bucket, fitting room → staff & service).
  */
 import type { ThemeTop } from "@/lib/reviewTextThemes";
-import { matchedThemeNames, snippetFrom } from "@/lib/reviewTextThemes";
+import {
+  isKeywordMatchNegated,
+  matchedThemeNames,
+  snippetFrom,
+} from "@/lib/reviewTextThemes";
 
 export type AnalyticsRange = "week" | "month" | "year" | "all";
 
@@ -144,7 +148,7 @@ export const THEME_TO_SUBJECT_BUCKETS: Record<string, SubjectBucketId[]> = {
   "Service speed / wait time": ["staff_service"],
   "Staff behavior": ["staff_service"],
   Cleanliness: ["cleanliness_ambience"],
-  "Food quality / taste": ["food_drinks"],
+  "Food & product quality": ["food_drinks"],
   "Food safety": ["food_drinks", "cleanliness_ambience"],
   "Order accuracy": ["stock_items_orders"],
   "Pricing / value": ["pricing_trust"],
@@ -199,13 +203,72 @@ const SUBJECT_DIRECT_KEYWORDS: Record<SubjectBucketId, readonly string[]> = {
   ],
   food_drinks: [
     "menu",
+    "food",
+    "foods",
+    "dish",
+    "dishes",
+    "cuisine",
+    "appetizer",
+    "appetiser",
+    "entree",
+    "dessert",
+    "snack",
     "coffee",
     "drink",
     "beverage",
+    "juice",
+    "soda",
+    "tea",
+    "beer",
+    "wine",
+    "cocktail",
+    "smoothie",
+    "latte",
+    "espresso",
     "meal",
     "breakfast",
     "lunch",
     "dinner",
+    "product",
+    "products",
+    "merchandise",
+    "goods",
+    "purchase",
+    "lesson",
+    "lessons",
+    "curriculum",
+    "coursework",
+    "workshop",
+    "tutorial",
+    "tutoring",
+    "homework",
+    "lecture",
+    "lectures",
+    "module",
+    "semester",
+    "textbook",
+    "instrument",
+    "equipment",
+    "haircut",
+    "highlights",
+    "color job",
+    "manicure",
+    "pedicure",
+    "facial",
+    "massage",
+    "workout",
+    "workmanship",
+    "craftsmanship",
+    "cheaply made",
+    "poorly made",
+    "flimsy",
+    "shoddy",
+    "poor quality",
+    "bad quality",
+    "low quality",
+    "terrible quality",
+    "subpar",
+    "not durable",
     "fabric quality",
     "poor stitching",
     "stitching undone",
@@ -219,6 +282,19 @@ const SUBJECT_DIRECT_KEYWORDS: Record<SubjectBucketId, readonly string[]> = {
     "button fell",
     "smelled chemical",
     "defective item",
+    "broke",
+    "broken",
+    "snapped",
+    "cracked",
+    "jammed",
+    "fell apart",
+    "stopped working",
+    "won't turn on",
+    "won't charge",
+    "doesn't work",
+    "didn't work",
+    "defective",
+    "faulty",
   ],
   cleanliness_ambience: [
     "restroom",
@@ -282,8 +358,11 @@ function normalize(s: string) {
 function includesAnyKeyword(text: string, needles: readonly string[]) {
   for (const n of needles) {
     const escaped = n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const re = new RegExp(`\\b${escaped}\\b`, "i");
-    if (re.test(text)) return true;
+    const re = new RegExp(`\\b${escaped}\\b`, "gi");
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text)) !== null) {
+      if (!isKeywordMatchNegated(text, m.index, m[0].length)) return true;
+    }
   }
   return false;
 }
@@ -396,7 +475,7 @@ export function parseAnalyticsRange(raw: string | null): AnalyticsRange {
   if (raw === "week" || raw === "month" || raw === "year" || raw === "all") {
     return raw;
   }
-  return "month";
+  return "all";
 }
 
 function inRange(t: Date, start: Date, endExclusive: Date) {

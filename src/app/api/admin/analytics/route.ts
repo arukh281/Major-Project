@@ -259,7 +259,13 @@ export async function GET(req: NextRequest) {
 
     const trend = mergeDailyTrend(trendRowsExt, trendRowsInt);
 
-    const themeInput: ThemeInsightRow[] = blendedReviews.map((r) => ({
+    const reviewsInWindow = blendedReviews.filter(
+      (r) =>
+        r.reviewTime >= metricsWindows.windowStart &&
+        r.reviewTime < windowEndExclusive
+    );
+
+    const themeInput: ThemeInsightRow[] = reviewsInWindow.map((r) => ({
       id: r.id,
       rating: r.rating,
       comment: r.comment,

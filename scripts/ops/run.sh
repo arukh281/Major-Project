@@ -3,23 +3,24 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
+source "$ROOT_DIR/scripts/ops/ui.sh"
 
 print_menu() {
   echo
-  echo "=== Fynd Ops Menu ==="
-  echo "1) Bootstrap local database"
-  echo "2) Ingest reviews (local or supabase)"
-  echo "3) Reset one owner (local or supabase)"
-  echo "4) Reset whole database (local or supabase)"
-  echo "5) Start dev server"
-  echo "6) Exit"
+  ui_title "Fynd Ops Menu"
+  ui_menu_item "1" "Bootstrap local database"
+  ui_menu_item "2" "Ingest reviews (local or supabase)"
+  ui_menu_item "3" "Reset one owner (local or supabase)"
+  ui_menu_item "4" "Reset whole database (local or supabase)"
+  ui_menu_item "5" "Start dev server"
+  ui_menu_item "6" "Exit"
 }
 
 run_reset_owner() {
   echo
-  echo "Reset one owner target:"
-  echo "  1) local"
-  echo "  2) supabase"
+  ui_section "Reset one owner target"
+  ui_menu_item "1" "local"
+  ui_menu_item "2" "supabase"
   read -r -p "Choose [1]: " RESET_TARGET
   case "${RESET_TARGET:-1}" in
     1|local|LOCAL)
@@ -29,7 +30,7 @@ run_reset_owner() {
       bash scripts/ops/delete-supabase.sh
       ;;
     *)
-      echo "Invalid target choice: ${RESET_TARGET}"
+      ui_error "Invalid target choice: ${RESET_TARGET}"
       return 1
       ;;
   esac
@@ -56,11 +57,11 @@ while true; do
       npm run dev
       ;;
     6|exit|EXIT|q|quit|QUIT)
-      echo "Exiting ops menu."
+      ui_info "Exiting ops menu."
       break
       ;;
     *)
-      echo "Invalid choice: ${ACTION}"
+      ui_error "Invalid choice: ${ACTION}"
       continue
       ;;
   esac
@@ -71,7 +72,7 @@ while true; do
     y|Y|yes|YES)
       ;;
     *)
-      echo "Exiting ops menu."
+      ui_info "Exiting ops menu."
       break
       ;;
   esac

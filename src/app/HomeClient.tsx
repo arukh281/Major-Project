@@ -1,15 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export function HomeClient() {
-  const [hint, setHint] = useState<string | null>(null);
-
-  useEffect(() => {
-    const e = new URLSearchParams(window.location.search).get("error");
-    if (e) setHint(e);
-  }, []);
+  const searchParams = useSearchParams();
+  const hint = searchParams.get("error");
 
   return (
     <main className="container-center py-16">
